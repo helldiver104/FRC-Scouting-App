@@ -1,5 +1,6 @@
 package org.waltonrobotics.ScoutingApp
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,6 +114,7 @@ fun ScoutingScreenNavHost(navController: NavHostController) {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun App() {
     val navController = rememberNavController()
@@ -280,6 +282,14 @@ fun ScoutingScreenClosingComments() {
         }
         Row {
             TextField(state = rememberTextFieldState())
+        }
+        Button(
+            onClick = {
+
+            },
+
+        ){
+            Text("SUBMIT")
         }
     }
 }
