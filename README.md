@@ -1,1 +1,3 @@
-This is a scouting app for FRC teams created by Walton Robotics
+This is a scouting app for FRC teams
+
+Created by Walton Robotics
