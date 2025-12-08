@@ -5,4 +5,5 @@ Created by Walton Robotics
 
 CHANGES FROM THE ORIGINAL
 - Migrated to normal jetpack compose instead of Kotlin Multiplatform
-- Added match scouting frontend
+- Added frontend :)
+- currently working on backend
