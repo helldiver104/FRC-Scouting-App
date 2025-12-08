@@ -42,7 +42,7 @@ android {
         compose = true
     }
 }
-
+// comrade i should be paid for this
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -1,7 +1,5 @@
 package org.waltonrobotics.ScoutingApp
 
-// IMPORTS
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,96 +9,102 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import kotlinx.serialization.Serializable
+import org.waltonrobotics.ScoutingApp.viewmodel.CycleTimeViewModel
+import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
+import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 
 //--------------------------------
-// PAGES
+// SCREENS
 //--------------------------------
-@Serializable
 object MainScreen
-@Serializable
 object ScoutingScreen
-@Serializable
 object ScoutingScreenStart
-@Serializable
 object ScoutingScreenAuton
-@Serializable
 object ScoutingScreenTeleop
-@Serializable
 object ScoutingScreenClosingComments
-@Serializable
 object CycleTimeForm
-@Serializable
 object PitScoutingForm
-@Serializable
 object FAQScreen
-@Serializable
 object ScheduleScreen
-@Serializable
 object AccountScreen
 
 //--------------------------------
-// BOILERPLATE INPUT THINGS
+// HELPER THINGS
 //--------------------------------
 @Composable
-fun CounterItem(label: String) {
-    var value by remember { mutableStateOf(0) }
+fun TextFieldItem(state: MutableState<String>, label: String) {
+    OutlinedTextField(
+        value = state.value,
+        onValueChange = { state.value = it },
+        label = { Text(label) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    )
+}
+
+@Composable
+fun CounterItem(label: String, state: MutableState<Int>) {
     Text(label)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Button(onClick = { if (value > 0) value-- }) { Text("-") }
-        Text(value.toString())
-        Button(onClick = { value++ }) { Text("+") }
+        IconButton(onClick = { if (state.value > 0) state.value-- }) {
+            Icon(painter = painterResource(R.drawable.remove), contentDescription = "Remove")
+        }
+        Text(state.value.toString(), fontSize = 18.sp)
+        IconButton(onClick = { state.value++ }) {
+            Icon(painter = painterResource(R.drawable.add), contentDescription = "Add")
+        }
     }
 }
 
 @Composable
-fun SegmentedSelector(label: String, options: List<String>) {
-    SegmentedSelector(label, options, defaultIndex = 0)
-}
-
-@Composable
-fun SegmentedSelector(label: String, options: List<String>, defaultIndex: Int) {
-    var selected by remember { mutableIntStateOf(defaultIndex) }
+fun SegmentedSelector(label: String, options: List<String>, selectedState: MutableState<Int>) {
     Text(label)
-    SingleChoiceSegmentedButtonRow {
+    Row(modifier = Modifier.padding(vertical = 4.dp)) {
         options.forEachIndexed { index, text ->
-            SegmentedButton(
-                selected = index == selected,
-                onClick = { selected = index },
-                shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                label = { Text(text, fontSize = 12.sp) }
-            )
+            Button(
+                onClick = { selectedState.value = index },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selectedState.value == index)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.secondary
+                ),
+                modifier = Modifier.padding(end = 4.dp)
+            ) {
+                Text(text, fontSize = 12.sp)
+            }
         }
     }
 }
@@ -110,61 +114,57 @@ fun SegmentedSelector(label: String, options: List<String>, defaultIndex: Int) {
 //--------------------------------
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    NavHost(navController, startDestination = MainScreen) {
-        composable<MainScreen> { MainScreen(navController) }
-        composable<ScoutingScreen> { ScoutingScreen() }
-        composable<ScheduleScreen> { ScheduleScreen() }
-        composable<AccountScreen> { AccountScreen() }
-        composable<PitScoutingForm> { PitScoutingForm() }
-        composable<CycleTimeForm> { CycleTimeForm() }
-        composable<FAQScreen> { FAQScreen() }
+    NavHost(navController, startDestination = MainScreen::class.simpleName!!) {
+        composable(MainScreen::class.simpleName!!) { MainScreen(navController) }
+        composable(ScoutingScreen::class.simpleName!!) { ScoutingScreen() }
+        composable(ScheduleScreen::class.simpleName!!) { ScheduleScreen() }
+        composable(AccountScreen::class.simpleName!!) { AccountScreen() }
+        composable(PitScoutingForm::class.simpleName!!) { PitScoutingForm() }
+        composable(CycleTimeForm::class.simpleName!!) { CycleTimeForm() }
+        composable(FAQScreen::class.simpleName!!) { FAQScreen() }
     }
 }
 
 @Composable
-fun ScoutingScreenNavHost(navController: NavHostController) {
-    NavHost(navController, startDestination = ScoutingScreenStart) {
-        composable<ScoutingScreenStart> { ScoutingScreenStart() }
-        composable<ScoutingScreenAuton> { ScoutingScreenAuton() }
-        composable<ScoutingScreenTeleop> { ScoutingScreenTeleop() }
-        composable<ScoutingScreenClosingComments> { ScoutingScreenClosingComments() }
+fun ScoutingScreenNavHost(vm: MatchScoutingViewModel, navController: NavHostController) {
+    NavHost(navController, startDestination = ScoutingScreenStart::class.simpleName!!) {
+        composable(ScoutingScreenStart::class.simpleName!!) { ScoutingScreenStart(vm) }
+        composable(ScoutingScreenAuton::class.simpleName!!) { ScoutingScreenAuton(vm) }
+        composable(ScoutingScreenTeleop::class.simpleName!!) { ScoutingScreenTeleop(vm) }
+        composable(ScoutingScreenClosingComments::class.simpleName!!) { ScoutingScreenClosingComments(vm) }
     }
 }
 
 //--------------------------------
-// APP SUPERSTRUCTURE
+// APP
 //--------------------------------
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun App() {
     val navController = rememberNavController()
     Scaffold(
-        modifier = Modifier.padding(top = 10.dp),
         bottomBar = { BottomNavBar(navController) }
-    ) { AppNavHost(navController) }
+    ) { innerPadding ->
+        AppNavHost(navController)
+    }
 }
 
-//--------------------------------
-// BOTTOM NAVBAR
-//--------------------------------
+data class BottomNavItem(val label: String, val iconRes: Int, val route: String)
+
 @Composable
 fun BottomNavBar(navController: NavHostController) {
+    val items = listOf(
+        BottomNavItem("Home", R.drawable.home, MainScreen::class.simpleName!!),
+        BottomNavItem("Schedule", R.drawable.calendar_clock, ScheduleScreen::class.simpleName!!),
+        BottomNavItem("Account", R.drawable.person, AccountScreen::class.simpleName!!)
+    )
     NavigationBar {
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(MainScreen) },
-            icon = { Icon(painterResource(R.drawable.home), "Home") }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(ScheduleScreen) },
-            icon = { Icon(painterResource(R.drawable.calendar_clock), "Schedule") }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { navController.navigate(AccountScreen) },
-            icon = { Icon(painterResource(R.drawable.person), "Account") }
-        )
+        items.forEach { item ->
+            NavigationBarItem(
+                selected = false,
+                onClick = { navController.navigate(item.route) },
+                icon = { Icon(painter = painterResource(item.iconRes), contentDescription = item.label) }
+            )
+        }
     }
 }
 
@@ -176,36 +176,35 @@ fun MainScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Hello! Click on the form you need!", modifier = Modifier.padding(bottom = 16.dp))
-
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = { navController.navigate(PitScoutingForm) }) {
-                    Icon(painterResource(R.drawable.pitscouting), contentDescription = "Pit Scouting")
+                Button(onClick = { navController.navigate(PitScoutingForm::class.simpleName!!) }) {
+                    Icon(painter = painterResource(R.drawable.pitscouting), contentDescription = "Pit")
                 }
                 Text("Pit Scouting")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = { navController.navigate(CycleTimeForm) }) {
-                    Icon(painterResource(R.drawable.timer), contentDescription = "Cycle Time")
+                Button(onClick = { navController.navigate(CycleTimeForm::class.simpleName!!) }) {
+                    Icon(painter = painterResource(R.drawable.timer), contentDescription = "Cycle")
                 }
                 Text("Cycle Time")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = { navController.navigate(ScoutingScreen) }) {
-                    Icon(painterResource(R.drawable.robot), contentDescription = "Match Scouting")
+                Button(onClick = { navController.navigate(ScoutingScreen::class.simpleName!!) }) {
+                    Icon(painter = painterResource(R.drawable.robot), contentDescription = "Match")
                 }
                 Text("Match Scouting")
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = { navController.navigate(FAQScreen) }) {
-                    Icon(painterResource(R.drawable.questionmark), contentDescription = "FAQ")
+                Button(onClick = { navController.navigate(FAQScreen::class.simpleName!!) }) {
+                    Icon(painter = painterResource(R.drawable.questionmark), contentDescription = "FAQ")
                 }
                 Text("FAQ")
             }
@@ -213,186 +212,170 @@ fun MainScreen(navController: NavController) {
     }
 }
 
-
-
-
 //--------------------------------
 // MATCH SCOUTING
 //--------------------------------
+data class ScoutingTab(val label: String, val iconRes: Int, val route: String)
+
 @Composable
-fun ScoutingScreen() {
-    val scoutingNavController = rememberNavController()
-    Scaffold(
-        modifier = Modifier.padding(top = 10.dp),
-        topBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { scoutingNavController.navigate(ScoutingScreenStart) },
-                    icon = { Icon(painterResource(R.drawable.robot), "Start") }
+fun MatchScoutingTopNav(
+    scoutingNavController: NavHostController,
+    selectedTab: MutableState<Int>,
+    useIcons: Boolean = true
+) {
+    val tabs = listOf(
+        ScoutingTab("Start", R.drawable.start, ScoutingScreenStart::class.simpleName!!),
+        ScoutingTab("Auton", R.drawable.robot, ScoutingScreenAuton::class.simpleName!!),
+        ScoutingTab("Teleop", R.drawable.controller, ScoutingScreenTeleop::class.simpleName!!),
+        ScoutingTab("Closing", R.drawable.stop, ScoutingScreenClosingComments::class.simpleName!!)
+    )
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        tabs.forEachIndexed { index, tab ->
+            Button(
+                onClick = {
+                    selectedTab.value = index
+                    scoutingNavController.navigate(tab.route) { launchSingleTop = true }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selectedTab.value == index)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.secondary
                 )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { scoutingNavController.navigate(ScoutingScreenAuton) },
-                    icon = { Icon(painterResource(R.drawable.robot), "Auton") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { scoutingNavController.navigate(ScoutingScreenTeleop) },
-                    icon = { Icon(painterResource(R.drawable.controller), "Teleop") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { scoutingNavController.navigate(ScoutingScreenClosingComments) },
-                    icon = { Icon(painterResource(R.drawable.stop), "Closing") }
-                )
+            ) {
+                if (useIcons) {
+                    Icon(painter = painterResource(tab.iconRes), contentDescription = tab.label)
+                } else {
+                    Text(tab.label)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun ScoutingScreen() {
+    val vm: MatchScoutingViewModel = viewModel()
+    val scoutingNavController = rememberNavController()
+    val selectedTab = remember { mutableStateOf(0) }
+    Scaffold(
+        topBar = { MatchScoutingTopNav(scoutingNavController, selectedTab) }
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
-            ScoutingScreenNavHost(scoutingNavController)
+            ScoutingScreenNavHost(vm, scoutingNavController)
         }
     }
 }
 
 @Composable
-fun ScoutingScreenStart() {
+fun ScoutingScreenStart(vm: MatchScoutingViewModel) {
     Column(Modifier
         .fillMaxHeight()
-        .padding(16.dp)) {
-        Text("Name - First Last (Ex. Carson Beck)")
-        TextField(state = rememberTextFieldState())
-        Text("Robot #")
-        TextField(state = rememberTextFieldState())
-        Text("Match #")
-        TextField(state = rememberTextFieldState())
-        SegmentedSelector("Did the robot show up?", listOf("Yes", "No"))
-        SegmentedSelector(
-            "What was the initial starting position?",
-            listOf("Far Side", "Middle", "Close Side", "N/A"),
-            1
-        )
+        .padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+        TextFieldItem(vm.name, "Name - First Last")
+        TextFieldItem(vm.robotNumber, "Robot #")
+        TextFieldItem(vm.matchNumber, "Match #")
+        SegmentedSelector("Did the robot show up?", listOf("Yes", "No"), vm.robotShowedUp)
+        SegmentedSelector("Starting position?", listOf("Far Side", "Middle", "Close Side", "N/A"), vm.startPosition)
     }
 }
 
 @Composable
-fun ScoutingScreenAuton() {
-    Column(Modifier.padding(16.dp)) {
-        SegmentedSelector("Did the robot leave the starting position?", listOf("Yes", "No"))
-        CounterItem("How many pieces did the robot SCORE in the PROCESSOR during auton?")
-        CounterItem("How many pieces did the robot SCORE in the NET during auton?")
-        CounterItem("How many pieces did the robot SCORE in L1 during auton?")
-        CounterItem("How many pieces did the robot SCORE in L2 during auton?")
-        CounterItem("How many pieces did the robot SCORE in L3 during auton?")
-        CounterItem("How many pieces did the robot SCORE in L4 during auton?")
+fun ScoutingScreenAuton(vm: MatchScoutingViewModel) {
+    Column(Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+        SegmentedSelector("Left starting position?", listOf("Yes","No"), vm.autonLeftStart)
+        CounterItem("Processor Score", vm.autonProcessor)
+        CounterItem("NET Score", vm.autonNet)
+        CounterItem("L1 Score", vm.autonL1)
+        CounterItem("L2 Score", vm.autonL2)
+        CounterItem("L3 Score", vm.autonL3)
+        CounterItem("L4 Score", vm.autonL4)
     }
 }
 
 @Composable
-fun ScoutingScreenTeleop() {
-    Column(Modifier.padding(16.dp)) {
-        CounterItem("How many TOTAL pieces did the robot SCORE in the PROCESSOR?")
-        CounterItem("How many TOTAL pieces did the robot SCORE in the NET?")
-        CounterItem("How many TOTAL pieces did the robot SCORE in L1?")
-        CounterItem("How many TOTAL pieces did the robot SCORE in L2?")
-        CounterItem("How many TOTAL pieces did the robot SCORE in L3?")
-        CounterItem("How many TOTAL pieces did the robot SCORE in L4?")
-        SegmentedSelector("Did the robot climb onto the BARGE?", listOf("Yes", "No"), 1)
-        SegmentedSelector(
-            "Did the robot climb onto the DEEP or SHALLOW cage? Fully suspended off the ground",
-            listOf("DEEP", "SHALLOW", "N/A"),
-            2
-        )
-        SegmentedSelector("Did the robot park under the BARGE? (Within tape?)", listOf("Yes", "No"))
+fun ScoutingScreenTeleop(vm: MatchScoutingViewModel) {
+    Column(Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+        CounterItem("Processor TOTAL", vm.teleopProcessor)
+        CounterItem("NET TOTAL", vm.teleopNet)
+        CounterItem("L1 TOTAL", vm.teleopL1)
+        CounterItem("L2 TOTAL", vm.teleopL2)
+        CounterItem("L3 TOTAL", vm.teleopL3)
+        CounterItem("L4 TOTAL", vm.teleopL4)
+        SegmentedSelector("Climb BARGE?", listOf("Yes","No"), vm.climbBarge)
+        SegmentedSelector("Climb DEEP/SHALLOW/N/A?", listOf("DEEP","SHALLOW","N/A"), vm.climbCage)
+        SegmentedSelector("Park under BARGE?", listOf("Yes","No"), vm.parkedBarge)
     }
 }
 
 @Composable
-fun ScoutingScreenClosingComments() {
-    Column(Modifier.padding(16.dp)) {
-        SegmentedSelector("Robot Playstyle", listOf("Scorer", "Passer", "Defense", "Hybrid", "N/A"))
-        CounterItem("How many penalties did they earn?")
-        SegmentedSelector(
-            "How good was their movement/driving skill (1-5)",
-            listOf("1", "2", "3", "4", "5"),
-            3
-        )
-        SegmentedSelector(
-            "Did the robot ever get an ALGAE or CORAL stuck inside?",
-            listOf("Yes", "No")
-        )
-        Text("Any other comments? (Defended, broken subsystems, etc)")
-        TextField(state = rememberTextFieldState())
-        Spacer(modifier = Modifier.height(16.dp))
+fun ScoutingScreenClosingComments(vm: MatchScoutingViewModel) {
+    Column(Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+        SegmentedSelector("Playstyle", listOf("Scorer","Passer","Defense","Hybrid","N/A"), vm.playstyle)
+        CounterItem("Penalties", vm.penalties)
+        SegmentedSelector("Movement Skill 1-5", listOf("1","2","3","4","5"), vm.movementSkill)
+        SegmentedSelector("ALGAE/CORAL stuck?", listOf("Yes","No"), vm.stuckPieces)
+        TextFieldItem(vm.otherComments, "Other Comments")
+        Spacer(Modifier.height(16.dp))
         Button(onClick = { /* Submit logic */ }) { Text("SUBMIT") }
     }
 }
 
-
 //--------------------------------
-// PIT SCOUTING FORM
+// PIT SCOUTING
 //--------------------------------
 @Composable
 fun PitScoutingForm() {
-    Column(modifier = Modifier
-        .fillMaxHeight()
-        .padding(16.dp)) {
+    val vm: PitScoutingViewModel = viewModel()
+    Column(
+        Modifier
+            .fillMaxHeight()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         Text("Pit Scouting Form")
-        Spacer(modifier = Modifier.height(10.dp))
-        Text("Name")
-        TextField(state = rememberTextFieldState())
-        Text("Team #")
-        TextField(state = rememberTextFieldState())
-        Text("Drive team experience (1-5)")
-        TextField(state = rememberTextFieldState())
-        Text("Autons available")
-        TextField(state = rememberTextFieldState())
-        Text("Scoring focus (Coral/Barge/Processor)")
-        TextField(state = rememberTextFieldState())
-        Text("Pieces scored per match")
-        TextField(state = rememberTextFieldState())
-        SegmentedSelector("Playstyle?", listOf("N", "Y"))
-        Text("Other notable strategies")
-        TextField(state = rememberTextFieldState())
-        Text("Robot weight")
-        TextField(state = rememberTextFieldState())
-        Spacer(modifier = Modifier.height(16.dp))
+        TextFieldItem(vm.name, "Name")
+        TextFieldItem(vm.teamNumber, "Team #")
+        TextFieldItem(vm.driveExperience, "Drive team experience (1-5)")
+        TextFieldItem(vm.autonsAvailable, "Autons available")
+        TextFieldItem(vm.scoringFocus, "Scoring focus (Coral/Barge/Processor)")
+        TextFieldItem(vm.piecesPerMatch, "Pieces scored per match")
+        SegmentedSelector("Playstyle?", listOf("N", "Y"), vm.playstyle)
+        TextFieldItem(vm.otherStrategies, "Other notable strategies")
+        TextFieldItem(vm.robotWeight, "Robot weight")
+        Spacer(Modifier.height(16.dp))
         Button(onClick = { /* Submit logic */ }) { Text("SUBMIT") }
     }
 }
 
 //--------------------------------
-// CYCLE TIME FORM
+// OTHER SCREENS
 //--------------------------------
 @Composable
 fun CycleTimeForm() {
-    Column(modifier = Modifier
-        .fillMaxHeight()
-        .padding(16.dp)) {
+    val vm: CycleTimeViewModel = viewModel()
+    Column(Modifier.padding(16.dp)) {
         Text("Cycle Time Form")
-        Text("Name")
-        TextField(state = rememberTextFieldState())
-        Text("Robot #")
-        TextField(state = rememberTextFieldState())
-        Text("Match #")
-        TextField(state = rememberTextFieldState())
-        Text("Cycle Time")
-        TextField(state = rememberTextFieldState())
-        Text("Other comments")
-        TextField(state = rememberTextFieldState())
-        Spacer(modifier = Modifier.height(16.dp))
+        TextFieldItem(vm.name, "Name")
+        TextFieldItem(vm.robotNumber, "Robot #")
+        TextFieldItem(vm.matchNumber, "Match #")
+        TextFieldItem(vm.cycleTime, "Cycle Time")
+        TextFieldItem(vm.otherComments, "Other comments")
+        Spacer(Modifier.height(16.dp))
         Button(onClick = { /* Submit logic */ }) { Text("SUBMIT") }
     }
 }
 
-//--------------------------------
-// FAQ SCREEN
-//--------------------------------
 @Composable
 fun FAQScreen() {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(Modifier.padding(16.dp)) {
         Text("FAQ")
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(Modifier.height(10.dp))
         Text("Q: What is the starting line?")
         Text("A: The black one nearest to the robots, NOT the colored ones")
         Text("Q: I keep getting notifications for wrong matches. Why?")
@@ -404,9 +387,6 @@ fun FAQScreen() {
     }
 }
 
-//--------------------------------
-// SCHEDULE SCREEN
-//--------------------------------
 @Composable
 fun ScheduleScreen() {
     Column(
@@ -418,9 +398,6 @@ fun ScheduleScreen() {
     }
 }
 
-//--------------------------------
-// ACCOUNT / ADMIN SCREEN
-//--------------------------------
 @Composable
 fun AccountScreen() {
     Column(
