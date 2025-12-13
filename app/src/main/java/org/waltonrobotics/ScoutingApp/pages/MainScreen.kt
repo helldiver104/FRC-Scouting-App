@@ -36,7 +36,7 @@ fun MainScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 20.dp)
         ) {
-            Icon(painterResource(R.drawable.pitscouting), null)
+            Icon(painterResource(R.drawable.pitscouting), "pit scouting form")
             Spacer(Modifier.width(8.dp))
             Text("Pit Scouting")
         }
@@ -47,7 +47,7 @@ fun MainScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 20.dp)
         ) {
-            Icon(painterResource(R.drawable.timer), null)
+            Icon(painterResource(R.drawable.timer), "cycle time form")
             Spacer(Modifier.width(8.dp))
             Text("Cycle Time")
         }
@@ -58,7 +58,7 @@ fun MainScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 20.dp)
         ) {
-            Icon(painterResource(R.drawable.robot), null)
+            Icon(painterResource(R.drawable.robot), "match scouting form")
             Spacer(Modifier.width(8.dp))
             Text("Match Scouting")
         }
@@ -67,7 +67,7 @@ fun MainScreen(navController: NavController) {
             onClick = { navController.navigate(AppScreen.FAQScreen.route) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(painterResource(R.drawable.questionmark), null)
+            Icon(painterResource(R.drawable.questionmark), "FAQs")
             Spacer(Modifier.width(8.dp))
             Text("FAQ")
         }

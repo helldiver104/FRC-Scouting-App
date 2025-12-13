@@ -31,7 +31,7 @@ import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 //--------------------------------
 // MATCH SCOUTING
 //--------------------------------
-data class ScoutingTab(val label: String, val iconRes: Int, val route: String)
+data class ScoutingTab(val label: String, val iconRes: Int, val route: String, val contentDescription: String)
 
 @Composable
 fun MatchScoutingTopNav(
@@ -40,10 +40,10 @@ fun MatchScoutingTopNav(
     useIcons: Boolean = true
 ) {
     val tabs = listOf(
-        ScoutingTab("Start", R.drawable.start, AppScreen.Scouting.Start.route),
-        ScoutingTab("Auton", R.drawable.robot, AppScreen.Scouting.Auton.route),
-        ScoutingTab("Teleop", R.drawable.controller, AppScreen.Scouting.Teleop.route),
-        ScoutingTab("Closing", R.drawable.stop, AppScreen.Scouting.ClosingComments.route)
+        ScoutingTab("Start", R.drawable.start, AppScreen.Scouting.Start.route, "Pre-match screen"),
+        ScoutingTab("Auton", R.drawable.robot, AppScreen.Scouting.Auton.route, "Auton screen"),
+        ScoutingTab("Teleop", R.drawable.controller, AppScreen.Scouting.Teleop.route, "Teleop screen"),
+        ScoutingTab("Closing", R.drawable.stop, AppScreen.Scouting.ClosingComments.route, "Post-match screen")
     )
     Row(
         modifier = Modifier
@@ -66,7 +66,7 @@ fun MatchScoutingTopNav(
                 )
             ) {
                 if (useIcons) {
-                    Icon(painterResource(tab.iconRes), null)
+                    Icon(painterResource(tab.iconRes), tab.contentDescription)
                 } else {
                     Text(tab.label)
                 }

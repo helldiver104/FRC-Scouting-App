@@ -10,13 +10,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 
 @Composable
 fun NumericalFieldItem(state: MutableState<String>, label: String) {
     OutlinedTextField(
         value = state.value,
-        onValueChange = { if (it.isDigitsOnly()) state.value = it },
+        onValueChange = { if (it.isEmpty() || it.all { ch -> ch.isDigit() }) state.value = it },
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = Modifier
