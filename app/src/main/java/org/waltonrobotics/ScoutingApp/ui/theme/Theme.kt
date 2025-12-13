@@ -1,3 +1,5 @@
+package org.waltonrobotics.ScoutingApp.ui.theme
+
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -7,22 +9,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import org.waltonrobotics.ScoutingApp.ui.theme.Blue100
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkBackground
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkBlue100
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkOnBackground
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkOnPrimary
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkOnSecondary
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkOnSurface
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkSurface
-import org.waltonrobotics.ScoutingApp.ui.theme.DarkTeal100
-import org.waltonrobotics.ScoutingApp.ui.theme.LightBackground
-import org.waltonrobotics.ScoutingApp.ui.theme.LightOnBackground
-import org.waltonrobotics.ScoutingApp.ui.theme.LightOnPrimary
-import org.waltonrobotics.ScoutingApp.ui.theme.LightOnSecondary
-import org.waltonrobotics.ScoutingApp.ui.theme.LightOnSurface
-import org.waltonrobotics.ScoutingApp.ui.theme.LightSurface
-import org.waltonrobotics.ScoutingApp.ui.theme.Teal100
 
 val LightColorScheme = lightColorScheme(
     primary = Blue100,
