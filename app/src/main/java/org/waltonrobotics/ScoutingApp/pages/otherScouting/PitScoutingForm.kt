@@ -13,9 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.waltonrobotics.ScoutingApp.NumericalFieldItem
-import org.waltonrobotics.ScoutingApp.SegmentedSelector
-import org.waltonrobotics.ScoutingApp.TextFieldItem
+import org.waltonrobotics.ScoutingApp.helpers.NumericalFieldItem
+import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
+import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 
 @Composable
@@ -47,8 +47,7 @@ fun PitScoutingForm() {
         SegmentedSelector("Playstyle?", listOf("N", "Y"), viewModel.playstyle)
         TextFieldItem(viewModel.otherStrategies, "Any other notable strategies or points to note?")
         NumericalFieldItem(viewModel.robotWeight, "Robot weight")
-        //TODO
-        // ADD IMAGE INPUT
+        //TODO ADD IMAGE INPUT
         Spacer(Modifier.height(16.dp))
 
         Button(onClick = { /* Submit logic */ }) { Text("SUBMIT") }

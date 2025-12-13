@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.waltonrobotics.ScoutingApp.NumericalFieldItem
-import org.waltonrobotics.ScoutingApp.TextFieldItem
+import org.waltonrobotics.ScoutingApp.helpers.NumericalFieldItem
+import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.CycleTimeViewModel
 
 @Composable

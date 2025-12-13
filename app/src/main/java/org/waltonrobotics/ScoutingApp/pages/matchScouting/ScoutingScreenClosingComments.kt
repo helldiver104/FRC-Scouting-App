@@ -9,9 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.waltonrobotics.ScoutingApp.CounterItem
-import org.waltonrobotics.ScoutingApp.SegmentedSelector
-import org.waltonrobotics.ScoutingApp.TextFieldItem
+import org.waltonrobotics.ScoutingApp.helpers.CounterItem
+import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
+import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable

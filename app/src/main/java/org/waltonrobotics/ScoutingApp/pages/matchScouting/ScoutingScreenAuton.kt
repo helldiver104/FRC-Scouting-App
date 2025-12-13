@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.waltonrobotics.ScoutingApp.CounterItem
-import org.waltonrobotics.ScoutingApp.SegmentedSelector
+import org.waltonrobotics.ScoutingApp.helpers.CounterItem
+import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
