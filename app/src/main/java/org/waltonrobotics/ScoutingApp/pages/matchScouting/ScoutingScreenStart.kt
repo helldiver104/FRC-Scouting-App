@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.waltonrobotics.ScoutingApp.helpers.DropdownSelector
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingEvent
@@ -58,7 +59,7 @@ fun ScoutingScreenStart(vm: MatchScoutingViewModel = viewModel()) {
                 selectedIndex = uiState.robotShowedUpIndex,
                 onSelect = { vm.setRobotShowedUp(it) }
             )
-            SegmentedSelector(
+            DropdownSelector (
                 label = "What was the inital starting position of the robot?",
                 options = listOf("Far Side", "Middle", "Near Side", "Close Side", "N/A"),
                 selectedIndex = uiState.startPositionIndex,

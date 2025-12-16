@@ -36,20 +36,16 @@ fun SegmentedSelector(
                         containerColor = if (selectedIndex == index)
                             MaterialTheme.colorScheme.primary
                         else
-                            MaterialTheme.colorScheme.secondary
+                            MaterialTheme.colorScheme.inversePrimary
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = text,
-                        color = if (selectedIndex == index)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
         }
     }
 }
-

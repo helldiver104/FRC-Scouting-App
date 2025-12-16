@@ -62,7 +62,7 @@ fun MatchScoutingTopNav(
                         if (selectedTab.value == index)
                             MaterialTheme.colorScheme.primary
                         else
-                            MaterialTheme.colorScheme.secondary
+                            MaterialTheme.colorScheme.inversePrimary
                 )
             ) {
                 if (useIcons) {

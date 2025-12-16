@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.waltonrobotics.ScoutingApp.helpers.CounterItem
+import org.waltonrobotics.ScoutingApp.helpers.DropdownSelector
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
@@ -22,37 +23,31 @@ fun ScoutingScreenClosingComments(vm: MatchScoutingViewModel = viewModel()) {
     val uiState by vm.uiState.collectAsState()
 
     Column(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
-        SegmentedSelector(
+        DropdownSelector(
             label = "Robot playstyle",
             listOf("Scorer", "Passer", "Defense", "Hybrid", "N/A"),
             selectedIndex = uiState.playstyleIndex,
-            onSelect = { vm.setPlaystyle(it) }
-        )
+            onSelect = { vm.setPlaystyle(it) })
         CounterItem(
             label = "Penalties",
             value = uiState.penalties,
             onIncrement = { vm.incrementPenalties() },
-            onDecrement = { vm.decrementPenalties() }
-        )
-        SegmentedSelector(
+            onDecrement = { vm.decrementPenalties() })
+        DropdownSelector(
             "Movement Skill 1-5",
             listOf("1", "2", "3", "4", "5"),
             selectedIndex = uiState.movementSkillIndex,
-            onSelect = { vm.setMovementSkill(it) }
-        )
+            onSelect = { vm.setMovementSkill(it) })
         SegmentedSelector(
             "ALGAE/CORAL stuck?",
             listOf("Yes", "No"),
             uiState.stuckPiecesIndex,
-            onSelect = { vm.setStuckPieces(it) }
-        )
+            onSelect = { vm.setStuckPieces(it) })
         TextFieldItem(
             value = uiState.otherComments,
             onValueChange = vm::updateOtherComments,
             label = "Any other comments?"
         )
-
-
         Spacer(Modifier.height(16.dp))
         Button(onClick = { /* Submit logic */ }) { Text("SUBMIT") }
 

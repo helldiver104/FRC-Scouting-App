@@ -38,7 +38,7 @@ fun CounterItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .wrapContentWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(50))
         ) {
             IconButton(
                 onClick = onDecrement,
@@ -56,7 +56,7 @@ fun CounterItem(
                 text = value.toString(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
             )
