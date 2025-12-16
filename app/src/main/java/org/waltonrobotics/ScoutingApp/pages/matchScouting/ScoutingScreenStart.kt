@@ -60,8 +60,8 @@ fun ScoutingScreenStart(vm: MatchScoutingViewModel = viewModel()) {
                 onSelect = { vm.setRobotShowedUp(it) }
             )
             DropdownSelector (
-                label = "What was the inital starting position of the robot?",
-                options = listOf("Far Side", "Middle", "Near Side", "Close Side", "N/A"),
+                label = "What was the initial starting position of the robot?",
+                options = listOf("Far Side" /* cow tools */, "Middle", "Near Side", "Close Side", "N/A"),
                 selectedIndex = uiState.startPositionIndex,
                 onSelect = { vm.setStartPosition(it) }
             )

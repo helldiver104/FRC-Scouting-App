@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,7 +32,12 @@ import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 //--------------------------------
 // MATCH SCOUTING
 //--------------------------------
-data class ScoutingTab(val label: String, val iconRes: Int, val route: String, val contentDescription: String)
+data class ScoutingTab(
+    val label: String,
+    val iconRes: Int,
+    val route: String,
+    val contentDescription: String
+)
 
 @Composable
 fun MatchScoutingTopNav(
@@ -42,8 +48,18 @@ fun MatchScoutingTopNav(
     val tabs = listOf(
         ScoutingTab("Start", R.drawable.start, AppScreen.Scouting.Start.route, "Pre-match screen"),
         ScoutingTab("Auton", R.drawable.robot, AppScreen.Scouting.Auton.route, "Auton screen"),
-        ScoutingTab("Teleop", R.drawable.controller, AppScreen.Scouting.Teleop.route, "Teleop screen"),
-        ScoutingTab("Closing", R.drawable.stop, AppScreen.Scouting.ClosingComments.route, "Post-match screen")
+        ScoutingTab(
+            "Teleop",
+            R.drawable.controller,
+            AppScreen.Scouting.Teleop.route,
+            "Teleop screen"
+        ),
+        ScoutingTab(
+            "Closing",
+            R.drawable.stop,
+            AppScreen.Scouting.ClosingComments.route,
+            "Post-match screen"
+        )
     )
     Row(
         modifier = Modifier
@@ -76,27 +92,28 @@ fun MatchScoutingTopNav(
 }
 
 @Composable
-fun ScoutingScreenNavHost(viewModel: MatchScoutingViewModel, navController: NavHostController) {
+fun ScoutingScreenNavHost(
+    viewModel: MatchScoutingViewModel,
+    navController: NavHostController,
+    specialNavController: NavController) {
     NavHost(navController, startDestination = AppScreen.Scouting.Start.route) {
         composable(AppScreen.Scouting.Start.route) { ScoutingScreenStart(viewModel) }
         composable(AppScreen.Scouting.Auton.route) { ScoutingScreenAuton(viewModel) }
         composable(AppScreen.Scouting.Teleop.route) { ScoutingScreenTeleop(viewModel) }
-        composable(AppScreen.Scouting.ClosingComments.route) {
-            ScoutingScreenClosingComments(
-                viewModel
-            )
-        }
+        composable(AppScreen.Scouting.ClosingComments.route) { ScoutingScreenClosingComments(specialNavController, viewModel) }
     }
 }
 
 @Composable
-fun ScoutingScreen() {
+fun ScoutingScreen(
+    navController: NavController
+) {
     val viewModel: MatchScoutingViewModel = viewModel()
     val scoutingNavController = rememberNavController()
     val selectedTab = remember { mutableIntStateOf(0) }
 
     Column(Modifier.fillMaxSize()) {
         MatchScoutingTopNav(scoutingNavController, selectedTab)
-        ScoutingScreenNavHost(viewModel, scoutingNavController)
+        ScoutingScreenNavHost(viewModel, scoutingNavController, navController)
     }
 }
