@@ -29,7 +29,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(AppScreen.ScheduleScreen.route) { ScheduleScreen() }
         composable(AppScreen.AccountScreen.route) { AccountScreen() }
         composable(AppScreen.PitScoutingForm.route) { PitScoutingForm(navController) }
-        composable(AppScreen.CycleTimeForm.route) { CycleTimeForm() }
+        composable(AppScreen.CycleTimeForm.route) { CycleTimeForm(navController) }
         composable(AppScreen.FAQScreen.route) { FAQScreen() }
     }
 }

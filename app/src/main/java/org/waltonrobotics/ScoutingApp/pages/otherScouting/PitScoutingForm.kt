@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -42,21 +43,18 @@ fun PitScoutingForm(
     val uiState by vm.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+    var showConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
-                is PitScoutingEvent.ShowError ->
-                    snackbarHostState.showSnackbar(event.message)
-                is PitScoutingEvent.SubmitSuccess ->
-                    snackbarHostState.showSnackbar("Submit successful")
+                is PitScoutingEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
+                is PitScoutingEvent.SubmitSuccess -> snackbarHostState.showSnackbar("Submit successful")
             }
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { contentPadding ->
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(contentPadding)
@@ -64,106 +62,61 @@ fun PitScoutingForm(
                 .verticalScroll(scrollState)
         ) {
             Text("Pit Scouting Form", fontSize = 25.sp)
-            TextFieldItem(
-                value = uiState.name,
-                onValueChange = vm::updateName,
-                label = "Scouter's Name"
-            )
-
-            TextFieldItem(
-                value = uiState.robotNumber,
-                onValueChange = vm::updateRobotNumber,
-                label = "Team Number?"
-            )
-
+            TextFieldItem(uiState.name, vm::updateName, "Scouter's Name")
+            TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Team Number?")
             SegmentedSelector(
-                label = "How much experience does the drive team have 1-5? (1 being bad, 5 being good)",
-                options = listOf("1", "2", "3", "4", "5"),
-                selectedIndex = uiState.driverExperienceIndex,
-                onSelect = vm::setDriverExperience
+                "How much experience does the drive team have 1-5? (1 being bad, 5 being good)",
+                listOf("1","2","3","4","5"),
+                uiState.driverExperienceIndex,
+                vm::setDriverExperience
             )
-
-            TextFieldItem(
-                value = uiState.autonsAvailable,
-                onValueChange = vm::updateAvailableAutons,
-                label = "What autons do they have?"
-            )
-
-            TextFieldItem(
-                value = uiState.scoringFocus,
-                onValueChange = vm::updateScoringFocus,
-                label = "Do they focus on scoring in the Coral, the Barge, or the Processor"
-            )
-
-            TextFieldItem(
-                value = uiState.piecesPerMatch,
-                onValueChange = vm::updatePiecesPerMatch,
-                label = "Pieces scored per match (in total)?"
-            )
-
-            SegmentedSelector(
-                label = "Playstyle?",
-                options = listOf("Y", "N"),
-                selectedIndex = uiState.playStyleIndex,
-                onSelect = vm::setPlaystyle
-            )
-
-            TextFieldItem(
-                value = uiState.otherStrategies,
-                onValueChange = vm::updateOtherStrategies,
-                label = "Any other strategies or other points to note?"
-            )
-
-            TextFieldItem(
-                value = uiState.robotWeight,
-                onValueChange = vm::updateWeight,
-                label = "Weight of Robot?"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+            TextFieldItem(uiState.autonsAvailable, vm::updateAvailableAutons, "What autons do they have?")
+            TextFieldItem(uiState.scoringFocus, vm::updateScoringFocus, "Do they focus on scoring in the Coral, the Barge, or the Processor")
+            TextFieldItem(uiState.piecesPerMatch, vm::updatePiecesPerMatch, "Pieces scored per match (in total)?")
+            SegmentedSelector("Playstyle?", listOf("Y","N"), uiState.playStyleIndex, vm::setPlaystyle)
+            TextFieldItem(uiState.otherStrategies, vm::updateOtherStrategies, "Any other strategies or other points to note?")
+            TextFieldItem(uiState.robotWeight, vm::updateWeight, "Weight of Robot?")
+            Spacer(Modifier.height(12.dp))
 
             Row {
-                Button(onClick = vm::submit) {
+                Button(onClick = vm::submit, modifier = Modifier.weight(1f)) {
                     Text("Submit")
                 }
-                var showConfirm by remember { mutableStateOf(false) }
-
+                Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = { showConfirm = true },
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Text("Cancel/Go back")
+                    Text("Cancel")
                 }
+            }
 
-                if (showConfirm) {
-                    AlertDialog(
-                        onDismissRequest = { showConfirm = false },
-                        title = { Text("Discard changes?") },
-                        text = { Text("Your changes will be lost.") },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    showConfirm = false
-                                    navController.navigate(AppScreen.MainScreen.route) {
-                                        popUpTo(AppScreen.MainScreen.route) { inclusive = true }
-                                        launchSingleTop = true
-                                    }
-                                }
-                            ) {
-                                Text("Discard")
+            if (showConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showConfirm = false },
+                    title = { Text("Discard changes?") },
+                    text = { Text("Your changes will be lost.") },
+                    confirmButton = {
+                        Button(onClick = {
+                            showConfirm = false
+                            navController.navigate(AppScreen.MainScreen.route) {
+                                popUpTo(AppScreen.MainScreen.route) { inclusive = true }
+                                launchSingleTop = true
                             }
-                        },
-                        dismissButton = {
-                            Button(onClick = { showConfirm = false }) {
-                                Text("Keep editing")
-                            }
+                        }) {
+                            Text("Discard")
                         }
-                    )
-                }
-
+                    },
+                    dismissButton = {
+                        Button(onClick = { showConfirm = false }) {
+                            Text("Keep editing")
+                        }
+                    }
+                )
             }
         }
     }
