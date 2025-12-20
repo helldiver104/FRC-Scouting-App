@@ -18,8 +18,16 @@ sealed class AppScreen(val route: String) {
     }
     // SCHEDULE SCREENS
     sealed class Schedule(route: String) : AppScreen(route) {
-        object ScheduleStartingScreen : Schedule("ScheduleStartingScreen")
+        object ScheduleScreen : Schedule("ScheduleScreen")
         object CompSchedule : Schedule("CompSchedule")
         object OurSchedule : Schedule("OurSchedule")
     }
+
+    // PIT STUFF (idk i have some time so why not?)
+    sealed class Pit(route: String) : AppScreen(route) {
+        object PitScreen : Schedule("PitScreen")
+        object PitChecklist : Schedule("PitChecklist")
+        object Sponsors : Schedule("Sponsors")
+    }
+
 }

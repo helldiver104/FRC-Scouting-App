@@ -16,7 +16,8 @@ data class BottomNavItem(val label: String, val iconRes: Int, val route: String)
 fun BottomNavBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem("Home", R.drawable.home, AppScreen.MainScreen.route),
-        BottomNavItem("Schedule", R.drawable.calendar_clock, AppScreen.ScheduleScreen.route),
+        BottomNavItem("Schedule", R.drawable.calendar_clock, AppScreen.Schedule.ScheduleScreen.route),
+        BottomNavItem("Pit", R.drawable.drill, AppScreen.Pit.PitScreen.route),
         BottomNavItem("Account", R.drawable.person, AppScreen.AccountScreen.route)
     )
 
@@ -49,5 +50,3 @@ fun BottomNavBar(navController: NavHostController) {
         }
     }
 }
-
-

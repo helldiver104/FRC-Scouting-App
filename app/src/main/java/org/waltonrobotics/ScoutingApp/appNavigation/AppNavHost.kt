@@ -11,24 +11,23 @@ import org.waltonrobotics.ScoutingApp.pages.MainScreen
 import org.waltonrobotics.ScoutingApp.pages.matchScouting.ScoutingScreen
 import org.waltonrobotics.ScoutingApp.pages.otherScouting.CycleTimeForm
 import org.waltonrobotics.ScoutingApp.pages.otherScouting.PitScoutingForm
+import org.waltonrobotics.ScoutingApp.pages.pit.PitScreen
 import org.waltonrobotics.ScoutingApp.pages.scheduleScreens.ScheduleScreen
 
-//import org.waltonrobotics.ScoutingApp.pages.scheduleScreens.ScheduleScreen
-
-
 //--------------------------------
-// NAVIGATION!!!!!!! bird.jpg
+// NAVIGATION!!!!!!! bird.png
 //--------------------------------
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController,
-        startDestination = AppScreen.MainScreen.route, // Using sealed class here
+        startDestination = AppScreen.MainScreen.route,
         modifier = modifier
     ) {
         composable(AppScreen.MainScreen.route) { MainScreen(navController) }
         composable(AppScreen.ScoutingScreen.route) { ScoutingScreen(navController) }
         composable(AppScreen.ScheduleScreen.route) { ScheduleScreen() }
+        composable(AppScreen.Pit.PitScreen.route){ PitScreen() }
         composable(AppScreen.AccountScreen.route) { AccountScreen() }
         composable(AppScreen.PitScoutingForm.route) { PitScoutingForm(navController) }
         composable(AppScreen.CycleTimeForm.route) { CycleTimeForm(navController) }
