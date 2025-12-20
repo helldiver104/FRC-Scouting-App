@@ -15,6 +15,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -24,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.waltonrobotics.ScoutingApp.R
 import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
+import org.waltonrobotics.ScoutingApp.schedule.readCsv
 
 
 //--------------------------------
@@ -98,9 +100,17 @@ fun ScheduleScreenNavHost(
 //    viewModel: MatchScoutingViewModel,
     navController: NavHostController,
 ) {
+    val context = LocalContext.current
+
+    val matches = remember {
+        context.assets.open("schedule.csv").use {
+            readCsv(it)
+        }
+    }
+
     NavHost(navController, startDestination = AppScreen.Schedule.CompSchedule.route) {
-        composable(AppScreen.Schedule.CompSchedule.route) { CompSchedule() }
-        composable(AppScreen.Schedule.OurSchedule.route) { OurSchedule() }
+        composable(AppScreen.Schedule.CompSchedule.route) { CompSchedule(matches) }
+        composable(AppScreen.Schedule.OurSchedule.route) { OurSchedule(matches) }
     }
 }
 

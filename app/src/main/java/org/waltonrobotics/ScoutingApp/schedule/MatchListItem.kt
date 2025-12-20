@@ -28,12 +28,12 @@ fun MatchListItem(match: Match) {
             )
 
             Text(
-                text = "Red: ${match.redAlliance.joinToString(", ")}",
+                text = "RED: ${match.redAlliance.joinToString(", ")}",
                 color = MaterialTheme.colorScheme.errorContainer
             )
-
+            // please valve don't sue me
             Text(
-                text = "Blue: ${match.blueAlliance.joinToString(", ")}",
+                text = "BLU: ${match.blueAlliance.joinToString(", ")}",
                 color = MaterialTheme.colorScheme.primary
             )
         }
