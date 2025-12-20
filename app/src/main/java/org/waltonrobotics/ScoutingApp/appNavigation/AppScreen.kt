@@ -16,4 +16,10 @@ sealed class AppScreen(val route: String) {
         object Teleop : Scouting("ScoutingScreenTeleop")
         object ClosingComments : Scouting("ScoutingScreenClosingComments")
     }
+    // SCHEDULE SCREENS
+    sealed class Schedule(route: String) : AppScreen(route) {
+        object ScheduleStartingScreen : Schedule("ScheduleStartingScreen")
+        object CompSchedule : Schedule("CompSchedule")
+        object OurSchedule : Schedule("OurSchedule")
+    }
 }

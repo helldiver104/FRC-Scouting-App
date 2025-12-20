@@ -23,7 +23,9 @@ fun BottomNavBar(navController: NavHostController) {
     val currentRoute =
         navController.currentBackStackEntryAsState().value?.destination?.route
 
-    NavigationBar {
+    NavigationBar (
+        containerColor = androidx.compose.ui.graphics.Color.Transparent
+    ){
         items.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,

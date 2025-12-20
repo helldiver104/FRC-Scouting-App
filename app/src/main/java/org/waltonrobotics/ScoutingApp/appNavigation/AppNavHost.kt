@@ -8,10 +8,12 @@ import androidx.navigation.compose.composable
 import org.waltonrobotics.ScoutingApp.pages.AccountScreen
 import org.waltonrobotics.ScoutingApp.pages.FAQScreen
 import org.waltonrobotics.ScoutingApp.pages.MainScreen
-import org.waltonrobotics.ScoutingApp.pages.ScheduleScreen
 import org.waltonrobotics.ScoutingApp.pages.matchScouting.ScoutingScreen
 import org.waltonrobotics.ScoutingApp.pages.otherScouting.CycleTimeForm
 import org.waltonrobotics.ScoutingApp.pages.otherScouting.PitScoutingForm
+import org.waltonrobotics.ScoutingApp.pages.scheduleScreens.ScheduleScreen
+
+//import org.waltonrobotics.ScoutingApp.pages.scheduleScreens.ScheduleScreen
 
 
 //--------------------------------
