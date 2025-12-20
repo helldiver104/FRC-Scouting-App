@@ -13,8 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.waltonrobotics.ScoutingApp.helpers.CounterItem
-import org.waltonrobotics.ScoutingApp.helpers.DropdownSelector
-import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
@@ -70,25 +68,6 @@ fun ScoutingScreenTeleop(vm: MatchScoutingViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        SegmentedSelector(
-            label = "Climb BARGE?",
-            options = listOf("Yes", "No"),
-            selectedIndex = uiState.climbBargeIndex,
-            onSelect = { vm.setClimbBarge(it) }
-        )
 
-        DropdownSelector (
-            label = "Climb DEEP/SHALLOW/N/A?",
-            options = listOf("DEEP", "SHALLOW", "N/A"),
-            selectedIndex = uiState.climbCageIndex,
-            onSelect = { vm.setClimbCage(it) }
-        )
-
-        SegmentedSelector(
-            label = "Park under BARGE?",
-            options = listOf("Yes", "No"),
-            selectedIndex = uiState.parkedBargeIndex,
-            onSelect = { vm.setParkedBarge(it) }
-        )
     }
 }

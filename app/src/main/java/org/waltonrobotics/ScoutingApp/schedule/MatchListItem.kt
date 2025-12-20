@@ -38,6 +38,4 @@ fun MatchListItem(match: Match) {
             )
         }
     }
-
-
 }

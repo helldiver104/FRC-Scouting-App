@@ -37,6 +37,26 @@ fun ScoutingScreenClosingComments(
     var showConfirm by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+        SegmentedSelector(
+            label = "Climb BARGE?",
+            options = listOf("Yes", "No"),
+            selectedIndex = uiState.climbBargeIndex,
+            onSelect = { vm.setClimbBarge(it) }
+        )
+
+        DropdownSelector (
+            label = "Climb DEEP/SHALLOW/N/A?",
+            options = listOf("DEEP", "SHALLOW", "N/A"),
+            selectedIndex = uiState.climbCageIndex,
+            onSelect = { vm.setClimbCage(it) }
+        )
+
+        SegmentedSelector(
+            label = "Park under BARGE?",
+            options = listOf("Yes", "No"),
+            selectedIndex = uiState.parkedBargeIndex,
+            onSelect = { vm.setParkedBarge(it) }
+        )
         DropdownSelector(
             label = "Robot playstyle",
             listOf("Scorer", "Passer", "Defense", "Hybrid", "N/A"),
