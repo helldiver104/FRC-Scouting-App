@@ -65,4 +65,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
     implementation("androidx.compose.material:material:1.10.0")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
 }

@@ -14,22 +14,25 @@ fun CsvPickerButton(onFilePicked: (Uri) -> Unit) {
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri ?: return@rememberLauncherForActivityResult
 
-        try {
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (e: SecurityException) {
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        if (isCsv(context, uri)) {
+            onFilePicked(uri)
         }
 
-        onFilePicked(uri)
     }
 
-    Button(onClick = { launcher.launch("*/*") }) {
+    Button(
+        onClick = {
+            launcher.launch(arrayOf("*/*"))
+        }
+    ) {
         Text("Pick CSV File")
     }
 }
