@@ -177,4 +177,41 @@ class MatchScoutingViewModel(
     private fun update(reducer: (MatchScoutingState) -> MatchScoutingState) {
         _uiState.update { current -> reducer(current) }
     }
+
+
+    fun prepNewMatch(matchNum: String, robotNum: String) {
+        _uiState.update { currentState ->
+            // We create a fresh state object, but copy the 'name' over
+            MatchScoutingState(
+                name = currentState.name, // Keeps scouter name persistent
+                matchNumber = matchNum,
+                robotNumber = robotNum,
+                robotShowedUpIndex = 0,    // Defaults to "Yes"
+                startPositionIndex = 4,    // Defaults to "N/A"
+
+                // Explicitly reset all scoring counters to 0
+                autonLeftStartIndex = 1,   // Defaults to "No"
+                autonProcessor = 0,
+                autonNet = 0,
+                autonL1 = 0,
+                autonL2 = 0,
+                autonL3 = 0,
+                autonL4 = 0,
+
+                teleopProcessor = 0,
+                teleopNet = 0,
+                teleopL1 = 0,
+                teleopL2 = 0,
+                teleopL3 = 0,
+                teleopL4 = 0,
+
+                // Reset comments and endgame
+                climbCageIndex = 0,
+                climbBargeIndex = 0,
+                parkedBargeIndex = 0,
+                otherComments = ""
+            )
+        }
+    }
+
 }

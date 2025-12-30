@@ -7,13 +7,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.waltonrobotics.ScoutingApp.helpers.CounterItem
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
-fun ScoutingScreenAuton(vm: MatchScoutingViewModel = viewModel()) {
+fun ScoutingScreenAuton(vm: MatchScoutingViewModel) {
     val uiState by vm.uiState.collectAsState()
 
     Column(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {

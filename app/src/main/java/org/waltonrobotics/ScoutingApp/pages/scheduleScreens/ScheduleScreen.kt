@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -115,16 +114,17 @@ fun ScheduleScreenNavHost(
 //--------------------------------
 @Composable
 fun ScheduleScreen(
-    vm: ScheduleViewModel = viewModel()
+    viewModel: ScheduleViewModel, // Ensure this matches your NavHost call
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val matches by vm.matches.collectAsState()
+    val matches by viewModel.matches.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scheduleNavController = rememberNavController()
 
     LaunchedEffect(Unit) {
-        vm.events.collect { message ->
+        viewModel.events.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
     }
@@ -150,7 +150,7 @@ fun ScheduleScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CsvPickerButton { uri ->
-                    vm.loadMatchesFromCsv(context, uri)
+                    viewModel.loadMatchesFromCsv(context, uri)
                 }
             }
 

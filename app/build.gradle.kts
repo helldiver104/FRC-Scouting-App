@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.runtime.saveable)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.navigation.safe.args.generator)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +68,13 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation("androidx.compose.material:material:1.10.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+}
+
+configurations {
+    all {
+        // This tells Gradle: "If you see xpp3 or xmlpull, don't include them"
+        exclude(group = "xmlpull", module = "xmlpull")
+        exclude(group = "xpp3", module = "xpp3")
+    }
 }

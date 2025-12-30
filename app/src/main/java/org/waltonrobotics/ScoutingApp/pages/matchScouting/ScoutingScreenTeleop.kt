@@ -11,12 +11,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.waltonrobotics.ScoutingApp.helpers.CounterItem
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
-fun ScoutingScreenTeleop(vm: MatchScoutingViewModel = viewModel()) {
+fun ScoutingScreenTeleop(vm: MatchScoutingViewModel) {
     val uiState by vm.uiState.collectAsState()
     val scrollState = rememberScrollState()
 

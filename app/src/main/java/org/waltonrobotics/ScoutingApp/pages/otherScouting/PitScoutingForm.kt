@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
@@ -38,7 +37,7 @@ import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 @Composable
 fun PitScoutingForm(
     navController: NavController,
-    vm: PitScoutingViewModel = viewModel()
+    vm: PitScoutingViewModel
 ) {
     val uiState by vm.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

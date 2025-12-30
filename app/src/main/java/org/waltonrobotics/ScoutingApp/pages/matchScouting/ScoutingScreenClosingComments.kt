@@ -31,7 +31,7 @@ import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 @Composable
 fun ScoutingScreenClosingComments(
     navController: NavController,
-    vm: MatchScoutingViewModel = viewModel()
+    vm: MatchScoutingViewModel
 ) {
     val uiState by vm.uiState.collectAsState()
     var showConfirm by remember { mutableStateOf(false) }

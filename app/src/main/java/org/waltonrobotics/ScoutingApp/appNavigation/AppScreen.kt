@@ -1,33 +1,31 @@
 package org.waltonrobotics.ScoutingApp.appNavigation
 
 sealed class AppScreen(val route: String) {
-    object MainScreen : AppScreen("MainScreen")
-    object ScoutingScreen : AppScreen("ScoutingScreen")
-    object PitScoutingForm : AppScreen("PitScoutingForm")
-    object CycleTimeForm : AppScreen("CycleTimeForm")
-    object FAQScreen : AppScreen("FAQScreen")
-    object ScheduleScreen : AppScreen("ScheduleScreen")
-    object AccountScreen : AppScreen("AccountScreen")
+    object MainScreen : AppScreen("main_page")
+    object ScoutingScreen : AppScreen("scouting_root")
+    object PitScoutingForm : AppScreen("pit_form_page")
+    object CycleTimeForm : AppScreen("cycle_time_page")
+    object FAQScreen : AppScreen("faq_page")
+    object ScheduleScreen : AppScreen("schedule_root") // Changed
+    object AccountScreen : AppScreen("account_page")
 
-    // SCOUTING SCREENS
     sealed class Scouting(route: String) : AppScreen(route) {
-        object Start : Scouting("ScoutingScreenStart")
-        object Auton : Scouting("ScoutingScreenAuton")
-        object Teleop : Scouting("ScoutingScreenTeleop")
-        object ClosingComments : Scouting("ScoutingScreenClosingComments")
+        object Start : Scouting("scout_nest_start")
+        object Auton : Scouting("scout_nest_auton")
+        object Teleop : Scouting("scout_nest_teleop")
+        object ClosingComments : Scouting("scout_nest_comments")
     }
-    // SCHEDULE SCREENS
+
     sealed class Schedule(route: String) : AppScreen(route) {
-        object ScheduleScreen : Schedule("ScheduleScreen")
-        object CompSchedule : Schedule("CompSchedule")
-        object OurSchedule : Schedule("OurSchedule")
+        object ScheduleScreen : Schedule("sched_nest_main") // Unique
+        object CompSchedule : Schedule("sched_nest_comp")
+        object OurSchedule : Schedule("sched_nest_ours")
     }
 
-    // PIT STUFF (idk i have some time so why not?)
     sealed class Pit(route: String) : AppScreen(route) {
-        object PitScreen : Schedule("PitScreen")
-        object PitChecklist : Schedule("PitChecklist")
-        object Sponsors : Schedule("Sponsors")
+        // FIXED: Inherit from Pit, not Schedule
+        object PitScreen : Pit("pit_nest_main")
+        object PitChecklist : Pit("pit_nest_checklist")
+        object Sponsors : Pit("pit_nest_sponsors")
     }
-
 }

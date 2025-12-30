@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
@@ -36,7 +35,7 @@ import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 @Composable
 fun CycleTimeForm(
     navController: NavController,
-    vm: CycleTimeViewModel = viewModel()
+    vm: CycleTimeViewModel
 ) {
     val uiState by vm.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

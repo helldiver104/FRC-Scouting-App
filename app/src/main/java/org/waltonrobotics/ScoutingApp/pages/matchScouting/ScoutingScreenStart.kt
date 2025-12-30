@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.waltonrobotics.ScoutingApp.helpers.DropdownSelector
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
@@ -20,7 +19,7 @@ import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingEvent
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
-fun ScoutingScreenStart(vm: MatchScoutingViewModel = viewModel()) {
+fun ScoutingScreenStart(vm: MatchScoutingViewModel) {
     val uiState by vm.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
