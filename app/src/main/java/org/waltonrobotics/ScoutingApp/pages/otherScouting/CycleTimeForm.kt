@@ -1,21 +1,29 @@
 package org.waltonrobotics.ScoutingApp.pages.otherScouting
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,14 +32,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
+import org.waltonrobotics.ScoutingApp.helpers.HybridCounter
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeEvent
 import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CycleTimeForm(
     navController: NavController,
@@ -42,79 +52,108 @@ fun CycleTimeForm(
     val scrollState = rememberScrollState()
     var showConfirm by remember { mutableStateOf(false) }
 
+    // Consistent Back Handling
+    BackHandler { showConfirm = true }
+
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
                 is CycleTimeEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
-                is CycleTimeEvent.SubmitSuccess -> snackbarHostState.showSnackbar("Submit successful")
+                is CycleTimeEvent.SubmitSuccess -> {
+                    snackbarHostState.showSnackbar("Submit successful")
+                    navController.popBackStack()
+                }
             }
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { contentPadding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(contentPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(scrollState)
+                .padding(horizontal = 20.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Cycle Time Scouting Form", fontSize = 25.sp)
-            TextFieldItem(uiState.name, vm::updateName, "Name - First, Last")
-            Spacer(Modifier.height(10.dp))
-            TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Robot #")
-            Spacer(Modifier.height(10.dp))
-            TextFieldItem(uiState.matchNumber, vm::updateMatchNumber, "Match #")
-            Spacer(Modifier.height(10.dp))
-            TextFieldItem(uiState.cycleTime, vm::updateCycleTime, "Cycle time")
-            Spacer(Modifier.height(10.dp))
-            TextFieldItem(uiState.otherComments, vm::updateOtherComments, "Other comments")
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(8.dp))
+            Text("Cycle Time Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
 
-            Row {
+            // --- Identification ---
+            TextFieldItem(uiState.name, vm::updateName, "Name - First, Last")
+
+            // Using standard text for Robot # (usually 3-4 digits)
+            TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Robot #", isNumber = true)
+
+            // Hybrid Counter for Match # (Easier to just tap +1 after a match)
+            HybridCounter(
+                label = "Match #",
+                // Convert the String to Int here. If empty, default to 0.
+                value = uiState.matchNumber.toIntOrNull() ?: 0,
+                //TODO fix and also need to make the hybrid counter work
+                onValueChange = { newValue ->
+                    // Convert the new Int back to a String for the ViewModel
+                    vm.updateMatchNumber(newValue.toString())
+                }
+            )
+
+            HorizontalDivider()
+
+            // --- Data Entry ---
+            // Keep this as Text for decimals (e.g. 14.2), but set to numeric keyboard
+            TextFieldItem(
+                value = uiState.cycleTime,
+                onValueChange = vm::updateCycleTime,
+                label = "Cycle time",
+                isNumber = true // Assuming this triggers KeyboardType.Decimal
+            )
+
+            TextFieldItem(uiState.otherComments, vm::updateOtherComments, "Other comments")
+
+            Spacer(Modifier.height(24.dp))
+
+            // --- Actions ---
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Button(
                     onClick = vm::submit,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("Submit")
                 }
-                Spacer(Modifier.width(8.dp))
-                Button(
+                Spacer(Modifier.width(12.dp))
+                OutlinedButton(
                     onClick = { showConfirm = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    ),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Cancel")
                 }
             }
-
-            if (showConfirm) {
-                AlertDialog(
-                    onDismissRequest = { showConfirm = false },
-                    title = { Text("Discard changes?") },
-                    text = { Text("Your changes will be lost.") },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                showConfirm = false
-                                navController.navigate(AppScreen.MainScreen.route) {
-                                    popUpTo(AppScreen.MainScreen.route) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                            }
-                        ) {
-                            Text("Discard")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showConfirm = false }) {
-                            Text("Keep editing")
-                        }
-                    }
-                )
-            }
+            Spacer(Modifier.height(40.dp))
         }
+    }
+
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text("Discard changes?") },
+            text = { Text("Your changes will be lost.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirm = false
+                    navController.popBackStack()
+                }) {
+                    Text("Discard", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) {
+                    Text("Keep editing")
+                }
+            }
+        )
     }
 }

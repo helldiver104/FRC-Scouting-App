@@ -1,21 +1,28 @@
 package org.waltonrobotics.ScoutingApp.pages.otherScouting
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,16 +31,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
+import org.waltonrobotics.ScoutingApp.helpers.HybridCounter
+import org.waltonrobotics.ScoutingApp.helpers.ImagePickerItem
 import org.waltonrobotics.ScoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.ScoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingEvent
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PitScoutingForm(
     navController: NavController,
@@ -44,79 +54,119 @@ fun PitScoutingForm(
     val scrollState = rememberScrollState()
     var showConfirm by remember { mutableStateOf(false) }
 
+    BackHandler { showConfirm = true }
+
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
                 is PitScoutingEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
-                is PitScoutingEvent.SubmitSuccess -> snackbarHostState.showSnackbar("Submit successful")
+                is PitScoutingEvent.SubmitSuccess -> {
+                    snackbarHostState.showSnackbar("Submit successful")
+                    navController.popBackStack()
+                }
             }
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { contentPadding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(contentPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(scrollState)
+                .padding(horizontal = 20.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Pit Scouting Form", fontSize = 25.sp)
+            Spacer(Modifier.height(8.dp))
+            Text("Pit Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+
+            // --- Scouter & Team ---
             TextFieldItem(uiState.name, vm::updateName, "Scouter's Name")
             TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Team Number?")
-            SegmentedSelector(
-                "How much experience does the drive team have 1-5? (1 being bad, 5 being good)",
-                listOf("1","2","3","4","5"),
-                uiState.driverExperienceIndex,
-                vm::setDriverExperience
+
+            // --- DRIVE EXP (Now Hybrid) ---
+            HybridCounter(
+                label = "How much experience does the drive team have 1-5? (1 being bad, 5 being good)",
+                value = uiState.driverExperience ?: 1, // Default to 1
+                onValueChange = { newValue ->
+                    // Constraints to keep it within the 1-5 range mentioned in your text
+                    if (newValue in 1..5) {
+                        vm.setDriverExperience(newValue)
+                    }
+                }
             )
+
+            // --- Autons & Focus ---
             TextFieldItem(uiState.autonsAvailable, vm::updateAvailableAutons, "What autons do they have?")
             TextFieldItem(uiState.scoringFocus, vm::updateScoringFocus, "Do they focus on scoring in the Coral, the Barge, or the Processor")
-            TextFieldItem(uiState.piecesPerMatch, vm::updatePiecesPerMatch, "Pieces scored per match (in total)?")
-            SegmentedSelector("Playstyle?", listOf("Y","N"), uiState.playStyleIndex, vm::setPlaystyle)
+
+            // --- Pieces (Hybrid) ---
+            HybridCounter(
+                label = "Pieces scored per match (in total)?",
+                value = uiState.piecesPerMatch.toIntOrNull() ?: 0,
+                onValueChange = { vm.updatePiecesPerMatch(it.toString()) }
+            )
+
+            // --- Playstyle & Weight ---
+            SegmentedSelector(
+                label = "Playstyle?",
+                options = listOf("Y", "N"),
+                selectedIndex = uiState.playStyleIndex,
+                onSelect = vm::setPlaystyle
+            )
+
             TextFieldItem(uiState.otherStrategies, vm::updateOtherStrategies, "Any other strategies or other points to note?")
             TextFieldItem(uiState.robotWeight, vm::updateWeight, "Weight of Robot?")
-            Spacer(Modifier.height(12.dp))
+            ImagePickerItem(
+                label = "Robot Photo",
+                imageUri = uiState.robotPhotoUri,
+                onImagePicked = vm::updatePhoto // Make sure this is in your ViewModel
+            )
+            Spacer(Modifier.height(24.dp))
 
-            Row {
-                Button(onClick = vm::submit, modifier = Modifier.weight(1f)) {
+            // --- Actions ---
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = vm::submit,
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text("Submit")
                 }
-                Spacer(Modifier.width(8.dp))
-                Button(
+                Spacer(Modifier.width(12.dp))
+                OutlinedButton(
                     onClick = { showConfirm = true },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Cancel")
                 }
             }
-
-            if (showConfirm) {
-                AlertDialog(
-                    onDismissRequest = { showConfirm = false },
-                    title = { Text("Discard changes?") },
-                    text = { Text("Your changes will be lost.") },
-                    confirmButton = {
-                        Button(onClick = {
-                            showConfirm = false
-                            navController.navigate(AppScreen.MainScreen.route) {
-                                popUpTo(AppScreen.MainScreen.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }) {
-                            Text("Discard")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showConfirm = false }) {
-                            Text("Keep editing")
-                        }
-                    }
-                )
-            }
+            Spacer(Modifier.height(40.dp))
         }
+    }
+
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text("Discard changes?") },
+            text = { Text("Your changes will be lost.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                    showConfirm = false
+                    navController.popBackStack()
+                }) {
+                    Text("Discard", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) {
+                    Text("Keep editing", color = Color.White)
+                }
+            }
+        )
     }
 }

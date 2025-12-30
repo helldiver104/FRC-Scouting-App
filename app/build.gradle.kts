@@ -69,6 +69,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.10.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
 
 configurations {
