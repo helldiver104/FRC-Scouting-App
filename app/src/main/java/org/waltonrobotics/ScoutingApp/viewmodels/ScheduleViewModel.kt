@@ -54,20 +54,23 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
     private fun parseCsv(content: String): List<Match> {
         return content.lineSequence()
             .drop(1)
-            .filter { it.isNotBlank() }
+            .filter { it.isNotBlank() && it.contains(",") }
             .mapNotNull { line ->
-                val parts = line.split(",")
+                val parts = line.split(",").map { it.trim() }
                 if (parts.size < 7) return@mapNotNull null
                 Match(
-                    matchNumber = parts[0].trim(),
-                    redAlliance = parts.slice(1..3).map { it.trim() },
-                    blueAlliance = parts.slice(4..6).map { it.trim() }
+                    matchNumber = parts[0],
+                    redAlliance = listOf(parts[1], parts[2], parts[3]),
+                    blueAlliance = listOf(parts[4], parts[5], parts[6])
                 )
             }.toList()
     }
 
     fun clearMatches() {
-        if (file.exists()) file.delete()
-        _matches.value = emptyList()
+        viewModelScope.launch(Dispatchers.IO) {
+            if (file.exists()) file.delete()
+            _matches.value = emptyList()
+            _events.emit("Schedule cleared")
+        }
     }
 }

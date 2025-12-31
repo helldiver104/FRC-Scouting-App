@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -148,9 +149,17 @@ fun ScheduleScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Button(
+                    onClick = { viewModel.clearMatches() },
+
+                    ){
+                    Icon(painterResource(R.drawable.remove), contentDescription = null)
+                }
                 CsvPickerButton { uri ->
                     viewModel.importCsv(context, uri)
                 }
+                // TODO TEMP
+
             }
             Spacer(Modifier.height(8.dp))
             ScheduleScreenNavHost(
