@@ -61,14 +61,8 @@ class CycleTimeViewModel(
         it.copy(robotNumber = value.filter { it.isDigit() })
     }
 
-    // Matches the HybridCounter Int input
-    fun updateMatchNumber(value: String) = update {
-        // Only allow numbers to be typed
-        it.copy(matchNumber = value.filter { char -> char.isDigit() })
-    }
-
+    fun updateMatchNumber(v: String) = update { it.copy(matchNumber = v) }
     fun updateCycleTime(value: String) = update {
-        // Safety: Allow digits and only ONE decimal point
         val filtered = value.filterIndexed { index, char ->
             char.isDigit() || (char == '.' && value.indexOf('.') == index)
         }
@@ -87,8 +81,7 @@ class CycleTimeViewModel(
             }
 
             try {
-                // Example of converting String to Double safely for calculations
-                val timeAsDouble = state.cycleTime.toDoubleOrNull() ?: 0.0
+//                val timeAsDouble = state.cycleTime.toDoubleOrNull() ?: 0.0
 
                 // TODO: Save to database or CSV
 
@@ -104,7 +97,7 @@ class CycleTimeViewModel(
         // When resetting, we usually keep the name/match but increment the match
         _uiState.update {
             it.copy(
-                matchNumber = it.matchNumber + 1,
+                matchNumber = it.matchNumber,
                 cycleTime = "",
                 otherComments = ""
             )

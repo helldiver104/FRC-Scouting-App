@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.waltonrobotics.ScoutingApp.pages.AccountScreen
-import org.waltonrobotics.ScoutingApp.pages.AlliancePosition
 import org.waltonrobotics.ScoutingApp.pages.FAQScreen
 import org.waltonrobotics.ScoutingApp.pages.MainScreen
 import org.waltonrobotics.ScoutingApp.pages.matchScouting.ScoutingScreen
@@ -14,11 +13,11 @@ import org.waltonrobotics.ScoutingApp.pages.otherScouting.CycleTimeForm
 import org.waltonrobotics.ScoutingApp.pages.otherScouting.PitScoutingForm
 import org.waltonrobotics.ScoutingApp.pages.pit.PitScreen
 import org.waltonrobotics.ScoutingApp.pages.scheduleScreens.ScheduleScreen
-import org.waltonrobotics.ScoutingApp.schedule.Match
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
+import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 
 //--------------------------------
 // NAVIGATION!!!!!!! bird.png
@@ -29,6 +28,7 @@ fun AppNavHost(
     scoutingVm: MatchScoutingViewModel,
     pitScoutingVm: PitScoutingViewModel,
     cycleScoutingVm: CycleTimeViewModel,
+    scouterSchedulevm: ScouterViewModel,
     scheduleVm: ScheduleViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -39,16 +39,12 @@ fun AppNavHost(
     ) {
         // --- HOME / DASHBOARD ---
         composable(AppScreen.MainScreen.route) {
-            val dummyMatches = listOf(
-                Match(matchNumber = "12", redAlliance = listOf("2974", "9999", "8888"), blueAlliance = listOf("1111", "2222", "3333"))
-            )
 
             MainScreen(
                 navController = navController,
                 scoutingVm = scoutingVm,
-                dummyMatches = dummyMatches,
-                // Change to AlliancePosition.NONE to test your snackbar error
-                dummyPosition = AlliancePosition.RED_1
+                scouterScheduleVm = scouterSchedulevm,
+                scheduleVm = scheduleVm
             )
         }
         composable(AppScreen.PitScoutingForm.route) {
@@ -69,7 +65,7 @@ fun AppNavHost(
 
         // --- PIT SCOUTING ---
         composable(AppScreen.Pit.PitScreen.route) {
-            PitScreen() // Replace with your actual Pit screen
+            PitScreen()
         }
 
         // --- ACCOUNT ---
@@ -77,8 +73,7 @@ fun AppNavHost(
             AccountScreen(viewModel = scoutingVm)
         }
 
-        // --- MATCH SCOUTING FLOW ---
-        // (Note: This is NOT in the bottom bar, accessed via "Start Scouting")
+        // --- MATCH SCOUTING ---
         composable(AppScreen.ScoutingScreen.route) {
             ScoutingScreen(
                 viewModel = scoutingVm,

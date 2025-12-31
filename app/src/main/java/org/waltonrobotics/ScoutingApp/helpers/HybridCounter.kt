@@ -4,11 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -21,55 +19,63 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.waltonrobotics.ScoutingApp.R
 
 @Composable
 fun HybridCounter(
     label: String,
-    value: String, // Take the String from state
+    value: String, // This is uiState.matchNumber (a String)
     onValueChange: (String) -> Unit
 ) {
-    // This local state allows the text field to be empty while typing
+    // This 'remember' block ensures the local text box stays
+    // in sync with the ViewModel (e.g., when + or - is pressed)
     var localText by remember(value) { mutableStateOf(value) }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(text = label, style = MaterialTheme.typography.titleMedium)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Decrement Button
+            // Decrement
             IconButton(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary),
                 onClick = {
                     val currentInt = value.toIntOrNull() ?: 0
                     onValueChange((currentInt - 1).coerceAtLeast(0).toString())
-                },
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                }
             ) {
-                Icon(painterResource(R.drawable.remove), contentDescription = null)
+                Icon(painterResource(R.drawable.remove), null)
             }
 
             OutlinedTextField(
                 value = localText,
-                onValueChange = { input ->
-                    val filtered = input.filter { it.isDigit() }
-                    localText = filtered // Update local UI immediately
-                    onValueChange(filtered) // Send to ViewModel (even if empty)
+                onValueChange = { newText ->
+                    val filtered = newText.filter { it.isDigit() }
+
+                    // IMPORTANT: Update local state first
+                    localText = filtered
+
+                    // Send the string EXACTLY as it is (even if empty "")
+                    // to the ViewModel.
+                    onValueChange(filtered)
                 },
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
             )
 
-            // Increment Button
+            // Increment
             IconButton(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary),
                 onClick = {
                     val currentInt = value.toIntOrNull() ?: 0
                     onValueChange((currentInt + 1).toString())
-                },
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                }
+
             ) {
-                Icon(painterResource(R.drawable.add), contentDescription = null)
+                Icon(painterResource(R.drawable.add), null)
             }
         }
     }

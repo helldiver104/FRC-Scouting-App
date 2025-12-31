@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,7 +91,7 @@ fun CycleTimeForm(
             HybridCounter(
                 label = "Match #",
                 // Convert the String to Int here. If empty, default to 0.
-                value = uiState.matchNumber.toIntOrNull() ?: 0,
+                value = (uiState.matchNumber.toIntOrNull() ?: 0).toString(),
                 //TODO fix and also need to make the hybrid counter work
                 onValueChange = { newValue ->
                     // Convert the new Int back to a String for the ViewModel
@@ -149,9 +150,10 @@ fun CycleTimeForm(
                     Text("Discard", color = MaterialTheme.colorScheme.error)
                 }
             },
+
             dismissButton = {
                 TextButton(onClick = { showConfirm = false }) {
-                    Text("Keep editing")
+                    Text("Keep editing", color = Color.White)
                 }
             }
         )

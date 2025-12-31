@@ -114,8 +114,7 @@ fun ScheduleScreenNavHost(
 //--------------------------------
 @Composable
 fun ScheduleScreen(
-    viewModel: ScheduleViewModel, // Ensure this matches your NavHost call
-    modifier: Modifier = Modifier
+    viewModel: ScheduleViewModel,
 ) {
     val context = LocalContext.current
     val matches by viewModel.matches.collectAsState()
@@ -150,12 +149,10 @@ fun ScheduleScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CsvPickerButton { uri ->
-                    viewModel.loadMatchesFromCsv(context, uri)
+                    viewModel.importCsv(context, uri)
                 }
             }
-
             Spacer(Modifier.height(8.dp))
-
             ScheduleScreenNavHost(
                 navController = scheduleNavController,
                 matches = matches

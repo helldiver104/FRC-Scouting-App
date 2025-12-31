@@ -1,13 +1,17 @@
 package org.waltonrobotics.ScoutingApp.helpers.csv
 
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun CsvPickerButton(onFilePicked: (Uri) -> Unit) {
@@ -15,24 +19,20 @@ fun CsvPickerButton(onFilePicked: (Uri) -> Unit) {
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        uri ?: return@rememberLauncherForActivityResult
-
-        context.contentResolver.takePersistableUriPermission(
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
-        if (isCsv(context, uri)) {
-            onFilePicked(uri)
+    ) { uri ->
+        uri?.let {
+            if (isCsv(context, it)) {
+                onFilePicked(it)
+            }
         }
-
     }
 
     Button(
-        onClick = {
-            launcher.launch(arrayOf("*/*"))
-        }
+        onClick = { launcher.launch(arrayOf("text/comma-separated-values", "text/csv", "text/plain")) },
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Text("Pick CSV File")
+        Text("Import Match Schedule")
     }
 }
+

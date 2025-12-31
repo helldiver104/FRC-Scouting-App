@@ -44,7 +44,7 @@ data class MatchScoutingState(
     val parkedBargeIndex: Int? = null,
 
     val playstyleIndex: Int? = null,
-    val penalties: Int = 0,
+    val penalties: String = "0",
     val movementSkillIndex: Int? = null,
     val stuckPiecesIndex: Int? = null,
     val otherComments: String = ""
@@ -105,7 +105,6 @@ class MatchScoutingViewModel(
     fun setMovementSkill(index: Int?) = update { it.copy(movementSkillIndex = index) }
     fun setStuckPieces(index: Int?) = update { it.copy(stuckPiecesIndex = index) }
 
-    // --- Counters: increments / decrements with lower bound at 0 ---
     fun incrementAutonProcessor() = update { it.copy(autonProcessor = it.autonProcessor + 1) }
     fun decrementAutonProcessor() = update { it.copy(autonProcessor = maxOf(0, it.autonProcessor - 1)) }
 
@@ -142,38 +141,46 @@ class MatchScoutingViewModel(
     fun incrementTeleopL4() = update { it.copy(teleopL4 = it.teleopL4 + 1) }
     fun decrementTeleopL4() = update { it.copy(teleopL4 = maxOf(0, it.teleopL4 - 1)) }
 
-    fun incrementPenalties() = update { it.copy(penalties = it.penalties + 1) }
-    fun decrementPenalties() = update { it.copy(penalties = maxOf(0, it.penalties - 1)) }
+    fun updatePenalties(value: String) = update {
+        it.copy(penalties = value.filter { ch -> ch.isDigit() })
+    }
 
+    fun decrementPenalties() = update {
+        val current = it.penalties.toIntOrNull() ?: 0
+        it.copy(penalties = maxOf(0, current - 1).toString())
+    }
+
+    fun incrementPenalties() = update {
+        val current = it.penalties.toIntOrNull() ?: 0
+        it.copy(penalties = (current + 1).toString())
+    }
     // --- Submit: validate, persist (TODO), emit event ---
     fun submit() {
         viewModelScope.launch {
             val state = _uiState.value
             if (!state.isValidForSubmit()) {
-                _events.send(MatchScoutingEvent.ShowError("Name, robot # and match # are required and robot/match must be numeric"))
+                _events.send(MatchScoutingEvent.ShowError("Name, robot # and match # are required"))
                 return@launch
             }
 
             try {
-                // TODO: Persist state via repository (Room / DataStore / remote)
-                // e.g., repository.saveMatchScouting(state)
-
+                // TODO: Save logic
                 _events.send(MatchScoutingEvent.SubmitSuccess)
 
-                // Optionally reset form after successful submit:
-                resetForm()
+                // Auto-increment match number for the next round
+                val nextMatch = (state.matchNumber.toIntOrNull() ?: 0) + 1
+                prepNewMatch(nextMatch.toString(), "")
             } catch (t: Throwable) {
-                _events.send(MatchScoutingEvent.ShowError("Failed to save: ${t.localizedMessage ?: t::class.simpleName}"))
+                _events.send(MatchScoutingEvent.ShowError("Failed to save"))
             }
         }
     }
 
-    // Optional helper to reset the form from UI
     fun resetForm() {
-        _uiState.value = MatchScoutingState()
+        val currentName = _uiState.value.name
+        _uiState.value = MatchScoutingState(name = currentName)
     }
 
-    // internal update helper
     private fun update(reducer: (MatchScoutingState) -> MatchScoutingState) {
         _uiState.update { current -> reducer(current) }
     }

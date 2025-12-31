@@ -16,6 +16,7 @@ import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
+import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 
 @Composable
 fun App(navController: NavHostController = rememberNavController()) {
@@ -24,6 +25,7 @@ fun App(navController: NavHostController = rememberNavController()) {
     val scheduleVm: ScheduleViewModel = viewModel()
     val pitScoutingVm: PitScoutingViewModel = viewModel()
     val cycleScoutingVm: CycleTimeViewModel = viewModel()
+    val scouterScheduleVm: ScouterViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -51,6 +53,7 @@ fun App(navController: NavHostController = rememberNavController()) {
             pitScoutingVm = pitScoutingVm,
             cycleScoutingVm = cycleScoutingVm,
             scheduleVm = scheduleVm,
+            scouterSchedulevm = scouterScheduleVm,
             modifier = Modifier.padding(innerPadding)
         )
     }

@@ -87,13 +87,13 @@ fun PitScoutingForm(
 
             // --- DRIVE EXP (Now Hybrid) ---
             HybridCounter(
-                label = "How much experience does the drive team have 1-5? (1 being bad, 5 being good)",
-                value = uiState.driverExperience ?: 1, // Default to 1
+                label = "Driver Experience (1-5)",
+                // Ensure this is accessing the Int from your state
+                value = uiState.driverExperience.toString(),
                 onValueChange = { newValue ->
-                    // Constraints to keep it within the 1-5 range mentioned in your text
-                    if (newValue in 1..5) {
-                        vm.setDriverExperience(newValue)
-                    }
+                    // Convert the String back to Int for the ViewModel
+                    val intValue = newValue.toIntOrNull() ?: 1
+                    vm.setDriverExperience(intValue)
                 }
             )
 
@@ -104,8 +104,8 @@ fun PitScoutingForm(
             // --- Pieces (Hybrid) ---
             HybridCounter(
                 label = "Pieces scored per match (in total)?",
-                value = uiState.piecesPerMatch.toIntOrNull() ?: 0,
-                onValueChange = { vm.updatePiecesPerMatch(it.toString()) }
+                value = (uiState.piecesPerMatch.toIntOrNull() ?: 0).toString(),
+                onValueChange = { vm.updatePiecesPerMatch(it) }
             )
 
             // --- Playstyle & Weight ---
