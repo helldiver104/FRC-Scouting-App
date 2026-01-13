@@ -30,21 +30,18 @@ fun DropdownSelector(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        // We use the TextField's built-in label for a cleaner look
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier.fillMaxWidth()
         ) {
             OutlinedTextField(
-                // Use the selected option or an empty string
                 value = selectedIndex?.let { options[it] } ?: "",
                 onValueChange = {},
-                readOnly = true, // Prevents the keyboard from popping up
+                readOnly = true,
                 label = { Text(label) },
                 placeholder = { Text("Select an option") },
                 trailingIcon = {
-                    // Standard dropdown arrow that rotates when expanded
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),

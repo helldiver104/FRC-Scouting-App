@@ -1,6 +1,7 @@
 package org.waltonrobotics.ScoutingApp.appNavigation
 
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -25,7 +26,7 @@ fun BottomNavBar(navController: NavHostController) {
         navController.currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar (
-        containerColor = androidx.compose.ui.graphics.Color.Transparent
+        containerColor = MaterialTheme.colorScheme.surface
     ){
         items.forEach { item ->
             NavigationBarItem(

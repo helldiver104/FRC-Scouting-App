@@ -18,8 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,11 +45,10 @@ import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PitScoutingForm(
-    navController: NavController,
-    vm: PitScoutingViewModel
+    snackbarHostState: SnackbarHostState,
+    navController: NavController, vm: PitScoutingViewModel
 ) {
     val uiState by vm.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     var showConfirm by remember { mutableStateOf(false) }
 
@@ -68,85 +66,91 @@ fun PitScoutingForm(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .padding(contentPadding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Spacer(Modifier.height(8.dp))
-            Text("Pit Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .verticalScroll(scrollState), verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Spacer(Modifier.height(8.dp))
+        Text("Pit Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
 
-            // --- Scouter & Team ---
-            TextFieldItem(uiState.name, vm::updateName, "Scouter's Name")
-            TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Team Number?")
+        // --- Scouter & Team ---
+        TextFieldItem(uiState.name, vm::updateName, "Scouter's Name")
+        TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Team Number?")
 
-            // --- DRIVE EXP (Now Hybrid) ---
-            HybridCounter(
-                label = "Driver Experience (1-5)",
-                // Ensure this is accessing the Int from your state
-                value = uiState.driverExperience.toString(),
-                onValueChange = { newValue ->
-                    // Convert the String back to Int for the ViewModel
-                    val intValue = newValue.toIntOrNull() ?: 1
-                    vm.setDriverExperience(intValue)
-                }
-            )
+        // --- DRIVE EXP (Now Hybrid) ---
+        HybridCounter(
+            label = "Driver Experience (1-5)",
+            // Ensure this is accessing the Int from your state
+            value = uiState.driverExperience.toString(), onValueChange = { newValue ->
+                // Convert the String back to Int for the ViewModel
+                val intValue = newValue.toIntOrNull() ?: 1
+                vm.setDriverExperience(intValue)
+            })
 
-            // --- Autons & Focus ---
-            TextFieldItem(uiState.autonsAvailable, vm::updateAvailableAutons, "What autons do they have?")
-            TextFieldItem(uiState.scoringFocus, vm::updateScoringFocus, "Do they focus on scoring in the Coral, the Barge, or the Processor")
+        // --- Autons & Focus ---
+        TextFieldItem(
+            uiState.autonsAvailable, vm::updateAvailableAutons, "What autons do they have?"
+        )
+        TextFieldItem(
+            uiState.scoringFocus,
+            vm::updateScoringFocus,
+            "Do they focus on scoring in the Coral, the Barge, or the Processor"
+        )
 
-            // --- Pieces (Hybrid) ---
-            HybridCounter(
-                label = "Pieces scored per match (in total)?",
-                value = (uiState.piecesPerMatch.toIntOrNull() ?: 0).toString(),
-                onValueChange = { vm.updatePiecesPerMatch(it) }
-            )
+        // --- Pieces (Hybrid) ---
+        HybridCounter(
+            label = "Pieces scored per match (in total)?",
+            value = (uiState.piecesPerMatch.toIntOrNull() ?: 0).toString(),
+            onValueChange = { vm.updatePiecesPerMatch(it) })
 
-            // --- Playstyle & Weight ---
-            SegmentedSelector(
-                label = "Playstyle?",
-                options = listOf("Y", "N"),
-                selectedIndex = uiState.playStyleIndex,
-                onSelect = vm::setPlaystyle
-            )
+        // --- Playstyle & Weight ---
+        SegmentedSelector(
+            label = "Playstyle?",
+            options = listOf("Y", "N"),
+            selectedIndex = uiState.playStyleIndex,
+            onSelect = vm::setPlaystyle
+        )
 
-            TextFieldItem(uiState.otherStrategies, vm::updateOtherStrategies, "Any other strategies or other points to note?")
-            TextFieldItem(uiState.robotWeight, vm::updateWeight, "Weight of Robot?")
-            ImagePickerItem(
-                label = "Robot Photo",
-                imageUri = uiState.robotPhotoUri,
-                onImagePicked = vm::updatePhoto // Make sure this is in your ViewModel
-            )
-            Spacer(Modifier.height(24.dp))
+        TextFieldItem(
+            uiState.otherStrategies,
+            vm::updateOtherStrategies,
+            "Any other strategies or other points to note?"
+        )
+        TextFieldItem(uiState.robotWeight, vm::updateWeight, "Weight of Robot?")
+        ImagePickerItem(
+            label = "Robot Photo",
+            imageUri = uiState.robotPhotoUri,
+            onImagePicked = vm::updatePhoto // Make sure this is in your ViewModel
+        )
+        Spacer(Modifier.height(24.dp))
 
-            // --- Actions ---
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    onClick = vm::submit,
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Submit")
-                }
-                Spacer(Modifier.width(12.dp))
-                OutlinedButton(
-                    onClick = { showConfirm = true },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Cancel")
-                }
+        // --- Actions ---
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = vm::submit,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Submit")
             }
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.width(12.dp))
+            OutlinedButton(
+                onClick = { showConfirm = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Cancel")
+            }
         }
+        Spacer(Modifier.height(40.dp))
     }
+
 
     if (showConfirm) {
         AlertDialog(
@@ -156,9 +160,9 @@ fun PitScoutingForm(
             confirmButton = {
                 TextButton(
                     onClick = {
-                    showConfirm = false
-                    navController.popBackStack()
-                }) {
+                        showConfirm = false
+                        navController.popBackStack()
+                    }) {
                     Text("Discard", color = MaterialTheme.colorScheme.error)
                 }
             },
@@ -166,7 +170,6 @@ fun PitScoutingForm(
                 TextButton(onClick = { showConfirm = false }) {
                     Text("Keep editing", color = Color.White)
                 }
-            }
-        )
+            })
     }
 }

@@ -3,6 +3,7 @@ package org.waltonrobotics.ScoutingApp.viewmodels
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.waltonrobotics.ScoutingApp.schedule.ScouterAssignment
 import java.io.File
+
 class ScouterViewModel(application: Application) : AndroidViewModel(application) {
     private val _scouters = MutableStateFlow<List<ScouterAssignment>>(emptyList())
     val scouters = _scouters.asStateFlow()
@@ -21,8 +23,9 @@ class ScouterViewModel(application: Application) : AndroidViewModel(application)
     val allScouterNames = _scouters.map { list ->
         list.map { it.scouterName }.sorted()
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    private val _userMap = MutableStateFlow<Map<String, String>>(emptyMap())
 
-    private val file = File(application.filesDir, "scouter_schedule.csv")
+    private val file = File(application.filesDir, "matchschedule.csv")
 
     init {
         loadFromInternal()
@@ -89,5 +92,26 @@ class ScouterViewModel(application: Application) : AndroidViewModel(application)
                     assignments = parts.drop(1)
                 )
             }.toList()
+    }
+
+
+    fun loadUserMapping(csvContent: String) {
+        val mapping = csvContent.lineSequence()
+            .drop(1) // skip header (email, name)
+            .filter { it.contains(",") }
+            .map { line ->
+                val parts = line.split(",")
+                parts[0].trim().lowercase() to parts[1].trim()
+            }.toMap()
+        _userMap.value = mapping
+    }
+
+    fun getNameByEmail(email: String?): String {
+        val fname = email?.substringBefore(".", missingDelimiterValue = "")
+        if (fname != null) {
+            Log.d("FNAME", fname)
+        }
+        val capitalize = fname?.replaceFirstChar { it.uppercase() }
+        return _userMap.value[capitalize] ?: "Unknown Scouter"
     }
 }

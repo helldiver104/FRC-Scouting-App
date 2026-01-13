@@ -12,10 +12,12 @@ import org.waltonrobotics.ScoutingApp.schedule.Match
 import org.waltonrobotics.ScoutingApp.schedule.MatchListItem
 
 @Composable
-fun CompSchedule(matches: List<Match>) {
+fun CompSchedule(
+    contentPadding: PaddingValues,
+    matches: List<Match>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(matches) { match ->

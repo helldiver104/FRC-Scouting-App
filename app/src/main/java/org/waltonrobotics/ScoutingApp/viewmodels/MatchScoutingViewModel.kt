@@ -74,8 +74,11 @@ class MatchScoutingViewModel(
     private val _events = Channel<MatchScoutingEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+    private val _scouterNames = MutableStateFlow<List<String>>(emptyList())
+    val scouterNames: StateFlow<List<String>> = _scouterNames
+
+
     init {
-        // Persist state changes to SavedStateHandle so they survive process death/rotation
         viewModelScope.launch {
             _uiState.collect { state ->
                 savedStateHandle[STATE_KEY] = state
@@ -154,6 +157,8 @@ class MatchScoutingViewModel(
         val current = it.penalties.toIntOrNull() ?: 0
         it.copy(penalties = (current + 1).toString())
     }
+
+
     // --- Submit: validate, persist (TODO), emit event ---
     fun submit() {
         viewModelScope.launch {
@@ -187,6 +192,7 @@ class MatchScoutingViewModel(
 
 
     fun prepNewMatch(matchNum: String, robotNum: String) {
+        android.util.Log.d("SCOUTING_DEBUG", "Prep called with: Match $matchNum, Robot $robotNum")
         _uiState.update { currentState ->
             // We create a fresh state object, but copy the 'name' over
             MatchScoutingState(
@@ -220,5 +226,6 @@ class MatchScoutingViewModel(
             )
         }
     }
+
 
 }

@@ -19,8 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,11 +43,10 @@ import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CycleTimeForm(
-    navController: NavController,
-    vm: CycleTimeViewModel
+    snackbarHostState: SnackbarHostState,
+    navController: NavController, vm: CycleTimeViewModel
 ) {
     val uiState by vm.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     var showConfirm by remember { mutableStateOf(false) }
 
@@ -68,73 +65,71 @@ fun CycleTimeForm(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .padding(contentPadding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Spacer(Modifier.height(8.dp))
-            Text("Cycle Time Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Spacer(Modifier.height(8.dp))
+        Text("Cycle Time Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
 
-            // --- Identification ---
-            TextFieldItem(uiState.name, vm::updateName, "Name - First, Last")
+        // --- Identification ---
+        TextFieldItem(uiState.name, vm::updateName, "Name - First, Last")
 
-            // Using standard text for Robot # (usually 3-4 digits)
-            TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Robot #", isNumber = true)
+        // Using standard text for Robot # (usually 3-4 digits)
+        TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Robot #", isNumber = true)
 
-            // Hybrid Counter for Match # (Easier to just tap +1 after a match)
-            HybridCounter(
-                label = "Match #",
-                // Convert the String to Int here. If empty, default to 0.
-                value = (uiState.matchNumber.toIntOrNull() ?: 0).toString(),
-                //TODO fix and also need to make the hybrid counter work
-                onValueChange = { newValue ->
-                    // Convert the new Int back to a String for the ViewModel
-                    vm.updateMatchNumber(newValue.toString())
-                }
-            )
+        // Hybrid Counter for Match # (Easier to just tap +1 after a match)
+        HybridCounter(
+            label = "Match #",
+            // Convert the String to Int here. If empty, default to 0.
+            value = (uiState.matchNumber.toIntOrNull() ?: 0).toString(),
+            //TODO fix and also need to make the hybrid counter work
+            onValueChange = { newValue ->
+                // Convert the new Int back to a String for the ViewModel
+                vm.updateMatchNumber(newValue.toString())
+            })
 
-            HorizontalDivider()
+        HorizontalDivider()
 
-            // --- Data Entry ---
-            // Keep this as Text for decimals (e.g. 14.2), but set to numeric keyboard
-            TextFieldItem(
-                value = uiState.cycleTime,
-                onValueChange = vm::updateCycleTime,
-                label = "Cycle time",
-                isNumber = true // Assuming this triggers KeyboardType.Decimal
-            )
+        // --- Data Entry ---
+        // Keep this as Text for decimals (e.g. 14.2), but set to numeric keyboard
+        TextFieldItem(
+            value = uiState.cycleTime,
+            onValueChange = vm::updateCycleTime,
+            label = "Cycle time",
+            isNumber = true // Assuming this triggers KeyboardType.Decimal
+        )
 
-            TextFieldItem(uiState.otherComments, vm::updateOtherComments, "Other comments")
+        TextFieldItem(uiState.otherComments, vm::updateOtherComments, "Other comments")
 
-            Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(24.dp))
 
-            // --- Actions ---
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    onClick = vm::submit,
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Submit")
-                }
-                Spacer(Modifier.width(12.dp))
-                OutlinedButton(
-                    onClick = { showConfirm = true },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Cancel")
-                }
+        // --- Actions ---
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = vm::submit,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Submit")
             }
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.width(12.dp))
+            OutlinedButton(
+                onClick = { showConfirm = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Cancel")
+            }
         }
+        Spacer(Modifier.height(40.dp))
     }
 
     if (showConfirm) {
@@ -155,7 +150,6 @@ fun CycleTimeForm(
                 TextButton(onClick = { showConfirm = false }) {
                     Text("Keep editing", color = Color.White)
                 }
-            }
-        )
+            })
     }
 }

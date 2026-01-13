@@ -94,7 +94,6 @@ fun PitNav(
 
 @Composable
 fun PitScreenNavHost(
-//    viewModel: MatchScoutingViewModel,
     navController: NavHostController,
 ) {
     NavHost(navController, startDestination = AppScreen.Pit.PitChecklist.route) {

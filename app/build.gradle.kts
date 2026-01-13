@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.parcelize")
     kotlin("plugin.serialization") version "2.2.21"
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -70,6 +72,10 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
 }
 
 configurations {

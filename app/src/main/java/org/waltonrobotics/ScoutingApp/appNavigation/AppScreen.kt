@@ -6,8 +6,10 @@ sealed class AppScreen(val route: String) {
     object PitScoutingForm : AppScreen("pit_form_page")
     object CycleTimeForm : AppScreen("cycle_time_page")
     object FAQScreen : AppScreen("faq_page")
-    object ScheduleScreen : AppScreen("schedule_root") // Changed
+    object ScheduleScreen : AppScreen("schedule_root")
     object AccountScreen : AppScreen("account_page")
+
+    object LoginScreen : AppScreen("login")
 
     sealed class Scouting(route: String) : AppScreen(route) {
         object Start : Scouting("scout_nest_start")
@@ -28,4 +30,7 @@ sealed class AppScreen(val route: String) {
         object PitChecklist : Pit("pit_nest_checklist")
         object Sponsors : Pit("pit_nest_sponsors")
     }
+
+
+
 }

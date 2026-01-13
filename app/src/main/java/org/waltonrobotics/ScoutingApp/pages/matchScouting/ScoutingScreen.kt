@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -89,12 +89,12 @@ fun MatchScoutingTopNav(
 
 @Composable
 fun ScoutingScreenNavHost(
-    viewModel: MatchScoutingViewModel, // The shared instance
+    snackbarHostState: SnackbarHostState,
+    viewModel: MatchScoutingViewModel,
     navController: NavHostController, specialNavController: NavController
 ) {
     NavHost(navController, startDestination = AppScreen.Scouting.Start.route) {
-        // PASS THE VM DIRECTLY
-        composable(AppScreen.Scouting.Start.route) { ScoutingScreenStart(viewModel) }
+        composable(AppScreen.Scouting.Start.route) { ScoutingScreenStart(snackbarHostState = snackbarHostState, viewModel) }
         composable(AppScreen.Scouting.Auton.route) { ScoutingScreenAuton(viewModel) }
         composable(AppScreen.Scouting.Teleop.route) { ScoutingScreenTeleop(viewModel) }
         composable(AppScreen.Scouting.ClosingComments.route) {
@@ -106,16 +106,15 @@ fun ScoutingScreenNavHost(
 @Composable
 fun ScoutingScreen(
     navController: NavController,
-    viewModel: MatchScoutingViewModel, // The shared VM passed from AppNavHost
+    snackbarHostState: SnackbarHostState,
+    viewModel: MatchScoutingViewModel,
     modifier: Modifier = Modifier
 ) {
 
-    val viewModel: MatchScoutingViewModel = viewModel()
     val scoutingNavController = rememberNavController()
     val selectedTab = remember { mutableIntStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
 
-    // Intercepts the physical back button/gesture
     BackHandler(enabled = true) {
         showExitDialog = true
     }
@@ -141,6 +140,6 @@ fun ScoutingScreen(
     }
     Column(Modifier.fillMaxSize()) {
         MatchScoutingTopNav(scoutingNavController, selectedTab)
-        ScoutingScreenNavHost(viewModel, scoutingNavController, navController)
+        ScoutingScreenNavHost(snackbarHostState = snackbarHostState, viewModel, specialNavController = navController, navController = scoutingNavController)
     }
 }

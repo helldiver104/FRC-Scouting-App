@@ -12,14 +12,17 @@ import org.waltonrobotics.ScoutingApp.schedule.Match
 import org.waltonrobotics.ScoutingApp.schedule.MatchListItem
 
 @Composable
-fun OurSchedule(matches: List<Match>) {
+fun OurSchedule(
+    contentPadding: PaddingValues,
+    matches: List<Match>
+) {
     val ourTeamMatches = matches.filter { match ->
         "2974" in match.redAlliance || "2974" in match.blueAlliance
     }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(ourTeamMatches) { match ->

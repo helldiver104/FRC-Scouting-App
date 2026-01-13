@@ -2,6 +2,7 @@ package org.waltonrobotics.ScoutingApp.pages.scheduleScreens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,15 +13,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,9 +40,7 @@ import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
 // TOP TABS
 //--------------------------------
 data class ScheduleTab(
-    val label: String,
-    val iconRes: Int,
-    val route: String
+    val label: String, val iconRes: Int, val route: String
 )
 
 @Composable
@@ -53,38 +49,26 @@ fun ScheduleNav(
 ) {
     val tabs = listOf(
         ScheduleTab(
-            "Comp Schedule",
-            R.drawable.calendar_clock,
-            AppScreen.Schedule.CompSchedule.route
-        ),
-        ScheduleTab(
-            "Our Schedule",
-            R.drawable.calendar_check,
-            AppScreen.Schedule.OurSchedule.route
+            "Comp Schedule", R.drawable.calendar_clock, AppScreen.Schedule.CompSchedule.route
+        ), ScheduleTab(
+            "Our Schedule", R.drawable.calendar_check, AppScreen.Schedule.OurSchedule.route
         )
     )
 
-    val currentRoute =
-        navController.currentBackStackEntryAsState().value?.destination?.route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar(containerColor = Color.Transparent) {
         tabs.forEach { tab ->
-            NavigationBarItem(
-                selected = currentRoute == tab.route,
-                onClick = {
-                    navController.navigate(tab.route) {
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(tab.iconRes),
-                        contentDescription = tab.label
-                    )
-                },
-                label = { Text(tab.label) }
-            )
+            NavigationBarItem(selected = currentRoute == tab.route, onClick = {
+                navController.navigate(tab.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }, icon = {
+                Icon(
+                    painter = painterResource(tab.iconRes), contentDescription = tab.label
+                )
+            }, label = { Text(tab.label) })
         }
     }
 }
@@ -94,18 +78,23 @@ fun ScheduleNav(
 //--------------------------------
 @Composable
 fun ScheduleScreenNavHost(
-    navController: NavHostController,
-    matches: List<Match>
+    contentPadding: PaddingValues,
+    navController: NavHostController, matches: List<Match>
 ) {
     NavHost(
-        navController = navController,
-        startDestination = AppScreen.Schedule.CompSchedule.route
+        navController = navController, startDestination = AppScreen.Schedule.CompSchedule.route
     ) {
         composable(AppScreen.Schedule.CompSchedule.route) {
-            CompSchedule(matches)
+            CompSchedule(
+                contentPadding = contentPadding,
+                matches = matches
+            )
         }
         composable(AppScreen.Schedule.OurSchedule.route) {
-            OurSchedule(matches)
+            OurSchedule(
+                contentPadding = contentPadding,
+                matches = matches
+            )
         }
     }
 }
@@ -115,57 +104,49 @@ fun ScheduleScreenNavHost(
 //--------------------------------
 @Composable
 fun ScheduleScreen(
+    contentPadding: PaddingValues,
     viewModel: ScheduleViewModel,
+    snackbarState: SnackbarHostState
 ) {
     val context = LocalContext.current
     val matches by viewModel.matches.collectAsState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val scheduleNavController = rememberNavController()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { message ->
-            snackbarHostState.showSnackbar(message)
+            snackbarState.showSnackbar(message)
         }
     }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { padding ->
-        Column(
+        ScheduleNav(scheduleNavController)
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
-            ScheduleNav(scheduleNavController)
-
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { viewModel.clearMatches() },
-
-                    ){
-                    Icon(painterResource(R.drawable.remove), contentDescription = null)
-                }
-                CsvPickerButton { uri ->
-                    viewModel.importCsv(context, uri)
-                }
-                // TODO TEMP
-
+            Button(
+                onClick = { viewModel.clearMatches() }) {
+                Icon(painterResource(R.drawable.remove), contentDescription = null)
             }
-            Spacer(Modifier.height(8.dp))
-            ScheduleScreenNavHost(
-                navController = scheduleNavController,
-                matches = matches
-            )
+            CsvPickerButton { uri ->
+                viewModel.importCsv(context, uri)
+            }
+            // TODO TEMP
+
         }
+        Spacer(Modifier.height(8.dp))
+        ScheduleScreenNavHost(
+            contentPadding = contentPadding,
+            navController = scheduleNavController, matches = matches
+        )
     }
 }

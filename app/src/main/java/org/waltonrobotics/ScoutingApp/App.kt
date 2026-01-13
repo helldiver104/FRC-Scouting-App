@@ -1,10 +1,14 @@
 package org.waltonrobotics.ScoutingApp
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -20,41 +24,37 @@ import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 
 @Composable
 fun App(navController: NavHostController = rememberNavController()) {
-    // Shared ViewModels created at the top level
     val scoutingVm: MatchScoutingViewModel = viewModel()
     val scheduleVm: ScheduleViewModel = viewModel()
     val pitScoutingVm: PitScoutingViewModel = viewModel()
     val cycleScoutingVm: CycleTimeViewModel = viewModel()
     val scouterScheduleVm: ScouterViewModel = viewModel()
-
+    val snackbarHostState = remember { SnackbarHostState() }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val notBottomBarScreens = listOf(AppScreen.ScoutingScreen.route, AppScreen.PitScoutingForm.route, AppScreen.CycleTimeForm.route)
+
     Scaffold(
         bottomBar = {
-            // Only show the bar on your primary tabs
-            // This hides it during active Match or Pit scouting
-            val bottomBarRoutes = listOf(
-                AppScreen.MainScreen.route,
-                AppScreen.ScheduleScreen.route,
-                AppScreen.Pit.PitScreen.route,
-                AppScreen.AccountScreen.route
-            )
-
-            if (currentRoute in bottomBarRoutes) {
+            if (currentRoute !in notBottomBarScreens) {
                 BottomNavBar(navController)
             }
-        }
+        },
+        snackbarHost = { snackbarHostState },
+        modifier = Modifier.padding(top=20.dp)
     ) { innerPadding ->
-        // Use the innerPadding to prevent content from going under the nav bar
+
         AppNavHost(
             navController = navController,
+            snackbarState = snackbarHostState,
             scoutingVm = scoutingVm,
             pitScoutingVm = pitScoutingVm,
             cycleScoutingVm = cycleScoutingVm,
             scheduleVm = scheduleVm,
             scouterSchedulevm = scouterScheduleVm,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = innerPadding,
         )
     }
 }
