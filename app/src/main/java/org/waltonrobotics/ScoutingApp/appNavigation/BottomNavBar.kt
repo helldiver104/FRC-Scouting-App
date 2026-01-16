@@ -18,7 +18,7 @@ fun BottomNavBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem("Home", R.drawable.home, AppScreen.MainScreen.route),
         BottomNavItem("Schedule", R.drawable.calendar_clock, AppScreen.ScheduleScreen.route),
-        BottomNavItem("Pit", R.drawable.drill, AppScreen.Pit.PitScreen.route),
+//        BottomNavItem("Pit", R.drawable.drill, AppScreen.Pit.PitScreen.route),
         BottomNavItem("Account", R.drawable.person, AppScreen.AccountScreen.route)
     )
 

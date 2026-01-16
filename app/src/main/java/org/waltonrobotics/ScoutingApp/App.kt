@@ -18,12 +18,14 @@ import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
 import org.waltonrobotics.ScoutingApp.appNavigation.BottomNavBar
 import org.waltonrobotics.ScoutingApp.viewmodel.MatchScoutingViewModel
 import org.waltonrobotics.ScoutingApp.viewmodel.PitScoutingViewModel
+import org.waltonrobotics.ScoutingApp.viewmodels.AuthViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.CycleTimeViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 
 @Composable
 fun App(navController: NavHostController = rememberNavController()) {
+    val authVm: AuthViewModel = viewModel()
     val scoutingVm: MatchScoutingViewModel = viewModel()
     val scheduleVm: ScheduleViewModel = viewModel()
     val pitScoutingVm: PitScoutingViewModel = viewModel()
@@ -33,7 +35,7 @@ fun App(navController: NavHostController = rememberNavController()) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val notBottomBarScreens = listOf(AppScreen.ScoutingScreen.route, AppScreen.PitScoutingForm.route, AppScreen.CycleTimeForm.route)
+    val notBottomBarScreens = listOf(AppScreen.ScoutingScreen.route, AppScreen.PitScoutingForm.route, AppScreen.CycleTimeForm.route, AppScreen.LoginScreen.route)
 
     Scaffold(
         bottomBar = {
@@ -54,6 +56,7 @@ fun App(navController: NavHostController = rememberNavController()) {
             scheduleVm = scheduleVm,
             scouterSchedulevm = scouterScheduleVm,
             modifier = Modifier.fillMaxSize(),
+            authVm = authVm,
             contentPadding = innerPadding,
         )
     }

@@ -1,15 +1,10 @@
 package org.waltonrobotics.ScoutingApp.pages.scheduleScreens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,10 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -32,7 +25,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.waltonrobotics.ScoutingApp.R
 import org.waltonrobotics.ScoutingApp.appNavigation.AppScreen
-import org.waltonrobotics.ScoutingApp.helpers.csv.CsvPickerButton
 import org.waltonrobotics.ScoutingApp.schedule.Match
 import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
 
@@ -108,7 +100,6 @@ fun ScheduleScreen(
     viewModel: ScheduleViewModel,
     snackbarState: SnackbarHostState
 ) {
-    val context = LocalContext.current
     val matches by viewModel.matches.collectAsState()
 
     val scheduleNavController = rememberNavController()
@@ -126,23 +117,7 @@ fun ScheduleScreen(
 
         Spacer(Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { viewModel.clearMatches() }) {
-                Icon(painterResource(R.drawable.remove), contentDescription = null)
-            }
-            CsvPickerButton { uri ->
-                viewModel.importCsv(context, uri)
-            }
-            // TODO TEMP
 
-        }
         Spacer(Modifier.height(8.dp))
         ScheduleScreenNavHost(
             contentPadding = contentPadding,

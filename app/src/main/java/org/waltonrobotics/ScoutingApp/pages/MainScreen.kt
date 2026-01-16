@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,22 +48,18 @@ import org.waltonrobotics.ScoutingApp.viewmodels.ScheduleViewModel
 import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 
 enum class AlliancePosition(val label: String, val isRed: Boolean, val isStrat: Boolean = false) {
-    RED_1("Red 1", true), RED_2("Red 2", true), RED_3("Red 3", true), BLUE_1(
-        "Blue 1", false
-    ),
-    BLUE_2("Blue 2", false), BLUE_3("Blue 3", false),
-
-    // New Roles
-    APP_MANAGEMENT("App Management", false, true), COMMS(
-        "Communications", false, true
-    ),
-    PIT_CREW("Pit Crew", false, true), CANBOT(
-        "CanBot", false, false
-    ),
-    PIT_PRESENTATION("Pit Presentation", false, true), TWENTY_NINE_SEVENTY_FOUR(
-        "2974", false, true
-    ),
-
+    RED_1("Red 1", true),
+    RED_2("Red 2", true),
+    RED_3("Red 3", true),
+    BLUE_1("Blue 1", false),
+    BLUE_2("Blue 2", false),
+    BLUE_3("Blue 3", false),
+    APP_MANAGEMENT("App Management", false, true),
+    COMMS("Communications", false, true),
+    PIT_CREW("Pit Crew", false, true),
+    CANBOT("CanBot", false, true),
+    PIT_PRESENTATION("Pit Presentation", false, true),
+    TWENTY_NINE_SEVENTY_FOUR("2974", false, true),
     NONE("None", false)
 }
 
@@ -76,85 +71,62 @@ fun MyNextMatchCard(
     onStartScouting: (String, String) -> Unit,
     onError: (String) -> Unit
 ) {
-    val isOnBreak = myPosition == AlliancePosition.NONE
+    val isNotScouting = myPosition == AlliancePosition.NONE
     val isStaff = myPosition.isStrat
-
     val matchData = matches.find { it.matchNumber == currentMatch.toString() }
 
-    val redTeams = matchData?.redAlliance?.joinToString(", ") ?: "???"
-    val blueTeams = matchData?.blueAlliance?.joinToString(", ") ?: "???"
+    val assignedRobot = remember(matchData, myPosition) {
+        val alliance = if (myPosition.isRed) matchData?.redAlliance else matchData?.blueAlliance
+        val index = myPosition.label.lastOrNull()?.digitToIntOrNull()?.minus(1) ?: -1
+        alliance?.getOrNull(index)
+    }
 
-    val assignedRobot = when (myPosition) {
-        AlliancePosition.RED_1 -> matchData?.redAlliance?.getOrNull(0)
-        AlliancePosition.RED_2 -> matchData?.redAlliance?.getOrNull(1)
-        AlliancePosition.RED_3 -> matchData?.redAlliance?.getOrNull(2)
-        AlliancePosition.BLUE_1 -> matchData?.blueAlliance?.getOrNull(0)
-        AlliancePosition.BLUE_2 -> matchData?.blueAlliance?.getOrNull(1)
-        AlliancePosition.BLUE_3 -> matchData?.blueAlliance?.getOrNull(2)
-        else -> null
+    val contentColor = if (isNotScouting) Color.White else Color.Black
+    val containerColor = when {
+        isNotScouting -> MaterialTheme.colorScheme.surfaceVariant
+        myPosition.isRed -> Color(0xFFFFEBEE)
+        else -> Color(0xFFE3F2FD)
     }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = when {
-                isOnBreak -> MaterialTheme.colorScheme.surfaceVariant
-                myPosition.isRed -> Color(0xFFFFEBEE)
-                else -> Color(0xFFE3F2FD)
-            }
-        )
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column(Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-
                 Column(modifier = Modifier.weight(1f)) {
                     if (isStaff) {
-                        Text("Red Alliance: $redTeams", color = Color.Red)
-                        Text("Blue Alliance: $blueTeams", color = Color.Blue)
 
-                        Spacer(Modifier.height(16.dp))
-                        Button(
-                            onClick = { /* Open Strategy/Notes View */ },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("VIEW MATCH STRATEGY")
-                        }
+                        OtherPositionView(
+                            myPosition.label
+                        )
                     } else {
-                        Text(
-                            text = "UP NEXT: MATCH $currentMatch",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (isOnBreak) Color.White
-                            else Color.Black
-                        )
-                        Text(
-                            text = if (isOnBreak) "break time!"
-                            else if (assignedRobot != null) "Robot $assignedRobot"
-                            else "Match Data Missing",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isOnBreak) Color.White
-                            else Color.Black
-                        )
-                        Text(
-                            text = if (isOnBreak) "Enjoy your rest!" else "Position: ${myPosition.label}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (isOnBreak) Color.White
-                            else Color.Black
+                        ScouterInfoView(
+                            currentMatch = currentMatch,
+                            assignedRobot = assignedRobot,
+                            myPosition = myPosition,
+                            isOnBreak = isNotScouting,
+                            contentColor = contentColor
                         )
                     }
                 }
+
                 Icon(
-                    painter = painterResource(id = if (isOnBreak) R.drawable.person else R.drawable.robot),
+                    painter = painterResource(if (isNotScouting) R.drawable.person else R.drawable.robot),
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
-                    tint = if (isOnBreak) Color.Gray else if (myPosition.isRed) Color.Red else Color.Blue
+                    tint = when {
+                        isNotScouting -> Color.Gray
+                        myPosition.isRed -> Color.Red
+                        else -> Color.Blue
+                    }
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            if (!isStaff && !isOnBreak) {
+            if (!isStaff && !isNotScouting) {
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
                         if (matchData == null || assignedRobot == null) {
@@ -168,15 +140,52 @@ fun MyNextMatchCard(
                         )
                     )
                 ) {
-                    Text(
-                        text = "START SCOUTING $assignedRobot", color = Color.White
-                    )
+                    Text("START SCOUTING ${assignedRobot ?: ""}", color = Color.White)
                 }
             }
-
-
         }
     }
+}
+
+@Composable
+private fun OtherPositionView(
+    position: String
+) {
+    Text(
+        text = "CURRENT JOB: $position",
+        style = MaterialTheme.typography.labelLarge,
+        color = Color.Black
+    )
+}
+
+@Composable
+private fun ScouterInfoView(
+    currentMatch: Int,
+    assignedRobot: String?,
+    myPosition: AlliancePosition,
+    isOnBreak: Boolean,
+    contentColor: Color
+) {
+    Text(
+        text = "UP NEXT: MATCH $currentMatch",
+        style = MaterialTheme.typography.labelLarge,
+        color = contentColor
+    )
+    Text(
+        text = when {
+            isOnBreak -> "break time!"
+            assignedRobot != null -> "Robot $assignedRobot"
+            else -> "Match Data Missing"
+        },
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+        color = contentColor
+    )
+    Text(
+        text = if (isOnBreak) "Enjoy your rest!" else "Position: ${myPosition.label}",
+        style = MaterialTheme.typography.bodyMedium,
+        color = contentColor
+    )
 }
 
 @Composable
@@ -188,17 +197,16 @@ fun MainScreen(
     scouterScheduleVm: ScouterViewModel,
     authVm: AuthViewModel
 ) {
-    LocalContext.current
     val scope = rememberCoroutineScope()
     val userEmail = authVm.currentUser?.email
     val scouters by scouterScheduleVm.scouters.collectAsState()
     val matches by scheduleVm.matches.collectAsState()
 
+    var currentMatch by rememberSaveable { mutableIntStateOf(1) }
+
     val scouterName = remember(userEmail, scouters) {
         scouterScheduleVm.getNameByEmail(userEmail)
     }
-
-    var currentMatch by rememberSaveable { mutableIntStateOf(1) }
 
     val assignment = remember(scouterName, currentMatch, scouters) {
         scouterScheduleVm.getAssignmentForMatch(scouterName, currentMatch)
@@ -210,6 +218,7 @@ fun MainScreen(
             it.label.lowercase() == clean || it.name.lowercase() == clean
         } ?: AlliancePosition.NONE
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -219,16 +228,10 @@ fun MainScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Scouting as $scouterName",
+            text = "Hi, $scouterName",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = userEmail ?: "Anonymous",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
-
         Spacer(Modifier.height(24.dp))
 
         MyNextMatchCard(
@@ -242,94 +245,78 @@ fun MainScreen(
             },
             onError = { message ->
                 scope.launch { snackbarHostState.showSnackbar(message) }
-            })
+            }
+        )
 
         Spacer(Modifier.height(16.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { if (currentMatch > 1) currentMatch-- }) {
-                    Icon(painterResource(R.drawable.leftarrow), null)
-                }
-                Text(
-                    text = "Match $currentMatch",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(onClick = { currentMatch++ }) {
-                    Icon(painterResource(R.drawable.rightarrow), null)
-                }
-            }
-        }
+        MatchPager(
+            currentMatch = currentMatch, onMatchChange = { currentMatch = it })
 
         Spacer(Modifier.height(32.dp))
 
         Text("Quick Tools", style = MaterialTheme.typography.labelLarge)
         Spacer(Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.ScoutingScreen.route) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(painterResource(R.drawable.controller), null, Modifier.size(20.dp))
-            Spacer(Modifier.width(12.dp))
-            Text("Match Scouting Form")
-            Spacer(Modifier.weight(1f))
-            Icon(painterResource(R.drawable.rightarrow), null, Modifier.size(20.dp))
+
+        ToolButton("Match Scouting", R.drawable.controller) {
+            navController.navigate(AppScreen.ScoutingScreen.route)
+        }
+        ToolButton("Pit Scouting", R.drawable.pitscouting) {
+            navController.navigate(AppScreen.PitScoutingForm.route)
+        }
+        ToolButton("Cycle Timer", R.drawable.timer) {
+            navController.navigate(AppScreen.CycleTimeForm.route)
+        }
+        ToolButton("FAQ", R.drawable.questionmark) {
+            navController.navigate(AppScreen.FAQScreen.route)
         }
 
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.PitScoutingForm.route) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(painterResource(R.drawable.pitscouting), null, Modifier.size(20.dp))
-            Spacer(Modifier.width(12.dp))
-            Text("Pit Scouting Form")
-            Spacer(Modifier.weight(1f))
-            Icon(painterResource(R.drawable.rightarrow), null, Modifier.size(20.dp))
-        }
+        Spacer(Modifier.height(24.dp))
+    }
+}
 
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.CycleTimeForm.route) },
+@Composable
+fun MatchPager(currentMatch: Int, onMatchChange: (Int) -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            shape = RoundedCornerShape(12.dp)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painterResource(R.drawable.timer), null, Modifier.size(20.dp))
-            Spacer(Modifier.width(12.dp))
-            Text("Cycle Time Scouting Form")
-            Spacer(Modifier.weight(1f))
-            Icon(painterResource(R.drawable.rightarrow), null, Modifier.size(20.dp))
+            IconButton(onClick = { if (currentMatch > 1) onMatchChange(currentMatch - 1) }) {
+                Icon(painterResource(R.drawable.leftarrow), "Previous")
+            }
+            Text(
+                text = "Match $currentMatch",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            IconButton(onClick = { onMatchChange(currentMatch + 1) }) {
+                Icon(painterResource(R.drawable.rightarrow), "Next")
+            }
         }
+    }
+}
 
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.FAQScreen.route) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(painterResource(R.drawable.questionmark), null, Modifier.size(20.dp))
-            Spacer(Modifier.width(12.dp))
-            Text("FAQ")
-            Spacer(Modifier.weight(1f))
-            Icon(painterResource(R.drawable.rightarrow), null, Modifier.size(20.dp))
-        }
+@Composable
+fun ToolButton(label: String, iconRes: Int, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Icon(painterResource(iconRes), null, Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
+        Text(label)
+        Spacer(Modifier.weight(1f))
+        Icon(painterResource(R.drawable.rightarrow), null, Modifier.size(20.dp))
     }
 }

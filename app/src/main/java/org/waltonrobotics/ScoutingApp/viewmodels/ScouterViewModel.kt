@@ -8,10 +8,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.waltonrobotics.ScoutingApp.schedule.ScouterAssignment
 import java.io.File
@@ -20,11 +18,12 @@ class ScouterViewModel(application: Application) : AndroidViewModel(application)
     private val _scouters = MutableStateFlow<List<ScouterAssignment>>(emptyList())
     val scouters = _scouters.asStateFlow()
 
-    val allScouterNames = _scouters.map { list ->
-        list.map { it.scouterName }.sorted()
-    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    private val _userMap = MutableStateFlow<Map<String, String>>(emptyMap())
-
+    // Using stateIn properly to ensure UI has immediate access to sorted names
+//    val allScouterNames = _scouters.map { list ->
+//        list.map { it.scouterName }.sorted()
+//    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+//
+//    private val _userMap = MutableStateFlow<Map<String, String>>(emptyMap())
     private val file = File(application.filesDir, "matchschedule.csv")
 
     init {
@@ -36,8 +35,10 @@ class ScouterViewModel(application: Application) : AndroidViewModel(application)
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val text = file.readText()
-                    _scouters.value = parseCsv(text)
-                } catch (e: Exception) { e.printStackTrace() }
+                    _scouters.update { parseCsv(text) }
+                } catch (e: Exception) {
+                    Log.e("ScouterVM", "Error loading internal file", e)
+                }
             }
         }
     }
@@ -48,70 +49,64 @@ class ScouterViewModel(application: Application) : AndroidViewModel(application)
                 val content = context.contentResolver.openInputStream(uri)?.use {
                     it.bufferedReader().readText()
                 } ?: ""
+
                 if (content.isNotBlank()) {
                     file.writeText(content)
                     _scouters.value = parseCsv(content)
                 }
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                Log.e("ScouterVM", "Error importing CSV", e)
+            }
         }
     }
 
     fun getAssignmentForMatch(name: String, match: Int): String? {
-        val list = _scouters.value
-        val scouter = list.find { it.scouterName.equals(name, ignoreCase = true) } ?: return null
+        val scouter = _scouters.value.find { it.scouterName.equals(name, ignoreCase = true) }
+            ?: return null
 
-        val index = when (match) {
-            in 1..5 -> 0
-            in 6..10 -> 1
-            in 11..15 -> 2
-            in 16..20 -> 3
-            in 21..25 -> 4
-            in 26..30 -> 5
-            in 31..35 -> 6
-            in 36..40 -> 7
-            in 41..45 -> 8
-            in 46..50 -> 9
-            in 51..55 -> 10
-            in 56..60 -> 11
-            else -> 12
-        }
+        // Calculate index: (match - 1) / 5
+        // This replaces the long when-block: 1-5 -> 0, 6-10 -> 1, etc.
+        val index = if (match > 0) (match - 1) / 5 else 0
+
         return scouter.assignments.getOrNull(index)
     }
 
     private fun parseCsv(content: String): List<ScouterAssignment> {
         return content.lineSequence()
             .drop(1)
-            .filter { it.contains(",") }
+            .filter { it.isNotBlank() && it.contains(",") }
             .mapNotNull { line ->
-                // FIX: Use 0 for limit or omit it to avoid the negative limit error
                 val parts = line.split(",").map { it.trim() }
-                if (parts.isEmpty() || parts[0].isBlank()) return@mapNotNull null
+                if (parts.isEmpty() || parts[0].isEmpty()) return@mapNotNull null
 
                 ScouterAssignment(
                     scouterName = parts[0],
-                    assignments = parts.drop(1)
+                    assignments = parts.drop(1) // All columns after name
                 )
             }.toList()
     }
 
+    fun getNameByEmail(email: String?): String {
+        if (email == null || !email.contains(".")) return "Unknown Scouter"
 
-    fun loadUserMapping(csvContent: String) {
-        val mapping = csvContent.lineSequence()
-            .drop(1) // skip header (email, name)
-            .filter { it.contains(",") }
-            .map { line ->
-                val parts = line.split(",")
-                parts[0].trim().lowercase() to parts[1].trim()
-            }.toMap()
-        _userMap.value = mapping
+        val nameParts = email.substringBefore("@").split(".")
+
+        val fullNameQuery = nameParts.joinToString(" ") { part ->
+            part.replaceFirstChar { it.uppercase() }
+        }
+
+        val scouter = _scouters.value.find { scouter ->
+            scouter.scouterName.contains(fullNameQuery, ignoreCase = true) ||
+                    // Also check reverse just in case CSV is "Doe, John"
+                    scouter.scouterName.contains(nameParts.last(), ignoreCase = true) &&
+                    scouter.scouterName.contains(nameParts.first(), ignoreCase = true)
+        }
+
+        return scouter?.scouterName ?: "Unknown Scouter"
     }
 
-    fun getNameByEmail(email: String?): String {
-        val fname = email?.substringBefore(".", missingDelimiterValue = "")
-        if (fname != null) {
-            Log.d("FNAME", fname)
-        }
-        val capitalize = fname?.replaceFirstChar { it.uppercase() }
-        return _userMap.value[capitalize] ?: "Unknown Scouter"
+    fun isSudo(email: String?): Boolean {
+        return email?.lowercase() == "gabriella.angryk@waltonrobotics.org" ||
+                email?.lowercase() == "max.gurung@waltonrobotics.org"
     }
 }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +30,7 @@ import org.waltonrobotics.ScoutingApp.viewmodels.ScouterViewModel
 fun AppNavHost(
     navController: NavHostController,
     snackbarState: SnackbarHostState,
+    authVm: AuthViewModel,
     scoutingVm: MatchScoutingViewModel,
     pitScoutingVm: PitScoutingViewModel,
     cycleScoutingVm: CycleTimeViewModel,
@@ -40,9 +40,10 @@ fun AppNavHost(
     contentPadding: PaddingValues
 ) {
 
-    val authVm: AuthViewModel = viewModel()
 
-    val startDest = if (authVm.currentUser == null) AppScreen.LoginScreen.route else AppScreen.MainScreen.route
+    val startDest =
+        if (authVm.currentUser == null) AppScreen.LoginScreen.route else AppScreen.MainScreen.route
+    val email = authVm.currentUser?.email.toString()
     NavHost(
         navController = navController,
         startDestination = startDest
@@ -102,7 +103,14 @@ fun AppNavHost(
 
         // --- ACCOUNT ---
         composable(AppScreen.AccountScreen.route) {
-            AccountScreen(viewModel = authVm)
+            AccountScreen(
+                email = authVm.currentUser?.email.toString(),
+                name = scouterSchedulevm.getNameByEmail(email),
+                viewmodel = authVm,
+                scheduleVm,
+                scouterSchedulevm,
+                scouterSchedulevm.isSudo(authVm.currentUser?.email.toString())
+            )
         }
 
         // --- MATCH SCOUTING ---
