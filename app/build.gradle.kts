@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "org.waltonrobotics.ScoutingApp"
+    namespace = "org.waltonrobotics.scoutingApp"
     compileSdk {
         version = release(36)
     }
