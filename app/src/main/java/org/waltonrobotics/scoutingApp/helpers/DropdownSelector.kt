@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,9 @@ fun DropdownSelector(
             modifier = Modifier.fillMaxWidth()
         ) {
             OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+                    .fillMaxWidth(),
                 value = selectedIndex?.let { options[it] } ?: "",
                 onValueChange = {},
                 readOnly = true,
@@ -45,9 +49,6 @@ fun DropdownSelector(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier
-                    .menuAnchor() // Critical: ties the menu to the text field
-                    .fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
 

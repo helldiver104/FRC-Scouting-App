@@ -81,9 +81,29 @@ class CycleTimeViewModel(
             }
 
             try {
-//                val timeAsDouble = state.cycleTime.toDoubleOrNull() ?: 0.0
+//                withContext(Dispatchers.IO) {
+//                    viewModelScope.launch(Dispatchers.IO) {
+//                        val state = _uiState.value
+//                        val record = ScoutingRecord(
+//                            teamNumber = state.robotNumber,
+//                            matchNumber = state.matchNumber,
+//                            cycleTime = state.cycleTime
+//                        )
+//
+//                        try {
+//                            val response = MatchScoutingRetrofitClient.MatchScoutingFormSheetsAPI.submitData(record)
+//                            if (response.isSuccessful) {
+//                                withContext(Dispatchers.Main) {
+//                                    _events.send(CycleTimeEvent.SubmitSuccess)
+//                                    resetForm()
+//                                }
+//                            }
+//                        } catch (e: Exception) {
+//                            _events.send(CycleTimeEvent.ShowError("Cloud Save Failed: ${e.message}"))
+//                        }
+//                    }
+//                }
 
-                // TODO: Save to database or CSV
 
                 _events.send(CycleTimeEvent.SubmitSuccess)
                 resetForm()

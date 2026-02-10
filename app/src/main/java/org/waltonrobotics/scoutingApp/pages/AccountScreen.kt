@@ -24,21 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.waltonrobotics.scoutingApp.helpers.csv.CsvPickerButton
 import org.waltonrobotics.scoutingApp.viewmodels.AuthViewModel
-import org.waltonrobotics.scoutingApp.viewmodels.ScheduleViewModel
-import org.waltonrobotics.scoutingApp.viewmodels.ScouterViewModel
 
 @Composable
 fun AccountScreen(
     email: String,
     name: String,
     viewmodel: AuthViewModel,
-    scheduleViewModel: ScheduleViewModel,
-    scouterViewModel: ScouterViewModel,
     isSudo: Boolean
 ) {
-    val context = LocalContext.current
+    LocalContext.current
 
     Column(
         modifier = Modifier
@@ -82,36 +77,11 @@ fun AccountScreen(
             SectionLabel("Account Information")
             AccountInfoCard(name, email)
             Spacer(Modifier.height(16.dp))
-            SectionLabel("Edit App CSVs")
-            
-            if (isSudo) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CsvPickerButton(scheduleViewModel) { uri ->
-                            scheduleViewModel.importCsv(context, uri)
-                        }
-                    }
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    Row (
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(horizontal = 16.dp)
-//                    ){
-//                        CsvPickerButton(scouterViewModel) { uri ->
-//                            scouterViewModel.importCsv(context, uri)
-//                        }
-//                    }
-                }
-
-            }
+            SectionLabel("")
+//            if (isSudo) {
+//
+//
+//            }
             Spacer(Modifier.height(16.dp))
             Button(
                 onClick = { viewmodel.signOut() },

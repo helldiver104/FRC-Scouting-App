@@ -1,72 +1,60 @@
 package org.waltonrobotics.scoutingApp.pages.matchScouting
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.waltonrobotics.scoutingApp.helpers.CounterItem
+import kotlinx.coroutines.launch
 import org.waltonrobotics.scoutingApp.viewmodel.MatchScoutingViewModel
 
 @Composable
 fun ScoutingScreenTeleop(vm: MatchScoutingViewModel) {
     val uiState by vm.uiState.collectAsState()
-    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier
-        .verticalScroll(scrollState)
-        .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-    ) {
-        CounterItem(
-            label = "Processor TOTAL",
-            value = uiState.teleopProcessor,
-            onIncrement = { vm.incrementTeleopProcessor() },
-            onDecrement = { vm.decrementTeleopProcessor() }
+    val pagerState = rememberPagerState(pageCount = { uiState.cycles.size })
+
+    LaunchedEffect(Unit) {
+        if (uiState.cycles.isEmpty()) vm.addCycle()
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Cycle ${pagerState.currentPage + 1} of ${uiState.cycles.size}",
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.secondary
         )
 
-        CounterItem(
-            label = "NET TOTAL",
-            value = uiState.teleopNet,
-            onIncrement = { vm.incrementTeleopNet() },
-            onDecrement = { vm.decrementTeleopNet() }
-        )
-
-        CounterItem(
-            label = "L1 TOTAL",
-            value = uiState.teleopL1,
-            onIncrement = { vm.incrementTeleopL1() },
-            onDecrement = { vm.decrementTeleopL1() }
-        )
-
-        CounterItem(
-            label = "L2 TOTAL",
-            value = uiState.teleopL2,
-            onIncrement = { vm.incrementTeleopL2() },
-            onDecrement = { vm.decrementTeleopL2() }
-        )
-
-        CounterItem(
-            label = "L3 TOTAL",
-            value = uiState.teleopL3,
-            onIncrement = { vm.incrementTeleopL3() },
-            onDecrement = { vm.decrementTeleopL3() }
-        )
-
-        CounterItem(
-            label = "L4 TOTAL",
-            value = uiState.teleopL4,
-            onIncrement = { vm.incrementTeleopL4() },
-            onDecrement = { vm.decrementTeleopL4() }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            pageSpacing = 12.dp
+        ) { pageIndex ->
+            uiState.cycles.getOrNull(pageIndex)?.let { cycle ->
+                CycleCard(
+                    cycle = cycle,
+                    onUpdate = { updated -> vm.updateCycle(updated) },
+                    onAddNewCycle = {
+                        vm.addCycle()
+                        scope.launch {
+                            pagerState.animateScrollToPage(uiState.cycles.size)
+                        }
+                    }
+                )
+            }
+        }
     }
 }

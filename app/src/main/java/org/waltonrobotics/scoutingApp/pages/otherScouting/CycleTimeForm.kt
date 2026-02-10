@@ -50,7 +50,6 @@ fun CycleTimeForm(
     val scrollState = rememberScrollState()
     var showConfirm by remember { mutableStateOf(false) }
 
-    // Consistent Back Handling
     BackHandler { showConfirm = true }
 
     LaunchedEffect(vm) {
@@ -74,39 +73,30 @@ fun CycleTimeForm(
         Spacer(Modifier.height(8.dp))
         Text("Cycle Time Scouting Form", fontSize = 25.sp, fontWeight = FontWeight.Bold)
 
-        // --- Identification ---
         TextFieldItem(uiState.name, vm::updateName, "Name - First, Last")
 
-        // Using standard text for Robot # (usually 3-4 digits)
         TextFieldItem(uiState.robotNumber, vm::updateRobotNumber, "Robot #", isNumber = true)
 
-        // Hybrid Counter for Match # (Easier to just tap +1 after a match)
         HybridCounter(
             label = "Match #",
-            // Convert the String to Int here. If empty, default to 0.
             value = (uiState.matchNumber.toIntOrNull() ?: 0).toString(),
-            //TODO fix and also need to make the hybrid counter work
             onValueChange = { newValue ->
-                // Convert the new Int back to a String for the ViewModel
-                vm.updateMatchNumber(newValue.toString())
+                vm.updateMatchNumber(newValue)
             })
 
         HorizontalDivider()
 
-        // --- Data Entry ---
-        // Keep this as Text for decimals (e.g. 14.2), but set to numeric keyboard
         TextFieldItem(
             value = uiState.cycleTime,
             onValueChange = vm::updateCycleTime,
             label = "Cycle time",
-            isNumber = true // Assuming this triggers KeyboardType.Decimal
+            isNumber = true
         )
 
         TextFieldItem(uiState.otherComments, vm::updateOtherComments, "Other comments")
 
         Spacer(Modifier.height(24.dp))
 
-        // --- Actions ---
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = vm::submit,

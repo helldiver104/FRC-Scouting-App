@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.parcelize")
     kotlin("plugin.serialization") version "2.2.21"
     id("com.google.gms.google-services")
-
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -33,18 +33,20 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
+    // DELETE the kotlinOptions block that was here
+
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
-// comrade i should be paid for this
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -68,21 +70,29 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
-    implementation("androidx.compose.material:material:1.10.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
+    // Retrofit 3.0.0-alpha versions require consistent naming
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        optIn.add("kotlin.RequiresOptIn")
+    }
 }
 
 configurations {
     all {
-        // This tells Gradle: "If you see xpp3 or xmlpull, don't include them"
         exclude(group = "xmlpull", module = "xmlpull")
         exclude(group = "xpp3", module = "xpp3")
     }

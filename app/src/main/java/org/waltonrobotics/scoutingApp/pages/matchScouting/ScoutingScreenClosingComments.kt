@@ -3,7 +3,6 @@ package org.waltonrobotics.scoutingApp.pages.matchScouting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,14 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.waltonrobotics.scoutingApp.appNavigation.AppScreen
 import org.waltonrobotics.scoutingApp.helpers.DropdownSelector
-import org.waltonrobotics.scoutingApp.helpers.HybridCounter
 import org.waltonrobotics.scoutingApp.helpers.SegmentedSelector
 import org.waltonrobotics.scoutingApp.helpers.TextFieldItem
 import org.waltonrobotics.scoutingApp.viewmodel.MatchScoutingViewModel
@@ -51,74 +48,72 @@ fun ScoutingScreenClosingComments(
             .fillMaxSize()
             .padding(horizontal = 16.dp)
             .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(16.dp) // Auto-spaces all items
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            "Closing Comments",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        // --- Climbing & Parking Section ---
         SegmentedSelector(
-            label = "Climb BARGE?",
+            label = "Climb?",
             options = listOf("Yes", "No"),
-            selectedIndex = uiState.climbBargeIndex,
-            onSelect = vm::setClimbBarge
+            selectedIndex = uiState.climbEndIndex,
+            onSelect = vm::setClimb
         )
 
-        DropdownSelector (
-            label = "Climb Cage (DEEP/SHALLOW/N/A)?",
-            options = listOf("DEEP", "SHALLOW", "N/A"),
-            selectedIndex = uiState.climbCageIndex,
-            onSelect = vm::setClimbCage
+        DropdownSelector(
+            label = "Climb Height?",
+            options = listOf("L1", "L2", "L3", "Attempted", "N/A"),
+            selectedIndex = uiState.climbHeightIndex,
+            onSelect = vm::setClimbHeight
         )
 
-        SegmentedSelector(
-            label = "Park under BARGE?",
-            options = listOf("Yes", "No"),
-            selectedIndex = uiState.parkedBargeIndex,
-            onSelect = vm::setParkedBarge
+        DropdownSelector(
+            label = "Time to climb",
+            options = listOf("5", "10", "15", "N/A"),
+            selectedIndex = uiState.climbTimeIndex,
+            onSelect = vm::setClimbTime
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         // --- Performance Section ---
         DropdownSelector(
-            label = "Robot Playstyle",
-            options = listOf("Scorer", "Passer", "Defense", "Hybrid", "N/A"),
-            selectedIndex = uiState.playstyleIndex,
-            onSelect = vm::setPlaystyle
-        )
-
-        // Replaced with HybridCounter to fix the "0" deletion issue
-        HybridCounter(
-            label = "Penalties",
-            value = uiState.penalties,
-            onValueChange = vm::updatePenalties
+            label = "Shoot on the move",
+            options = listOf("1", "2", "3", "4", "5"),
+            selectedIndex = uiState.shootOnMoveIndex,
+            onSelect = vm::setShootOnMove
         )
 
         DropdownSelector(
-            label = "Movement Skill (1-5)",
+            label = "Intake on the move",
             options = listOf("1", "2", "3", "4", "5"),
-            selectedIndex = uiState.movementSkillIndex,
-            onSelect = vm::setMovementSkill
+            selectedIndex = uiState.intakeOnMoveIndex,
+            onSelect = vm::setIntakeOnMove
         )
 
-        SegmentedSelector(
-            label = "ALGAE/CORAL stuck?",
-            options = listOf("Yes", "No"),
-            selectedIndex = uiState.stuckPiecesIndex,
-            onSelect = vm::setStuckPieces
+        DropdownSelector(
+            label = "Intake speed",
+            options = listOf("1", "2", "3", "4", "5"),
+            selectedIndex = uiState.intakeSpeedIndex,
+            onSelect = vm::setIntakeSpeed
+        )
+
+        DropdownSelector(
+            label = "Defense ability",
+            options = listOf("1", "2", "3", "4", "5"),
+            selectedIndex = uiState.defenseAbilityIndex,
+            onSelect = vm::setDefenseAbility
+        )
+
+        DropdownSelector(
+            label = "Drivers",
+            options = listOf("1", "2", "3", "4", "5"),
+            selectedIndex = uiState.driverSkillIndex,
+            onSelect = vm::setDriverSkill
         )
 
         // --- Final Notes ---
         TextFieldItem(
             value = uiState.otherComments,
             onValueChange = vm::updateOtherComments,
-            label = "Any other comments?"
+            label = "Comments? (passing, etc.)"
         )
 
         // --- Action Buttons ---
@@ -132,7 +127,7 @@ fun ScoutingScreenClosingComments(
                 onClick = vm::submit,
                 modifier = Modifier
                     .weight(1f)
-                    .height(56.dp), // Matching height
+                    .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -146,7 +141,7 @@ fun ScoutingScreenClosingComments(
                 onClick = { showConfirm = true },
                 modifier = Modifier
                     .weight(1f)
-                    .height(56.dp), // Matching height
+                    .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -166,6 +161,7 @@ fun ScoutingScreenClosingComments(
             confirmButton = {
                 TextButton(onClick = {
                     showConfirm = false
+                    vm.resetForm()
                     navController.navigate(AppScreen.MainScreen.route) {
                         popUpTo(AppScreen.MainScreen.route) { inclusive = true }
                     }
@@ -175,7 +171,7 @@ fun ScoutingScreenClosingComments(
             },
             dismissButton = {
                 TextButton(onClick = { showConfirm = false }) {
-                    Text("Keep editing", color = Color.White)
+                    Text("Keep editing", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         )

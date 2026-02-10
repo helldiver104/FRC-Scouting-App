@@ -67,17 +67,19 @@ fun ScoutingScreenStart(
         SegmentedSelector(
             label = "Did the robot show up?",
             options = listOf("Yes", "No"),
-            selectedIndex = uiState.robotShowedUpIndex,
-            onSelect = { vm.setRobotShowedUp(it) })
+            // true -> "Yes" (0), false -> "No" (1)
+            selectedIndex = if (uiState.hasRobotShowedUp) 0 else 1,
+            onSelect = { index ->
+                vm.setRobotShowedUp(index == 0)
+            }
+        )
 
         Spacer(Modifier.height(16.dp))
 
         DropdownSelector(
             label = "What was the initial starting position of the robot?",
-            options = listOf("Far Side", "Middle", "Near Side", "Close Side", "N/A"),
+            options = listOf("Depot", "Tower", "Outpost", "N/A"),
             selectedIndex = uiState.startPositionIndex,
             onSelect = { vm.setStartPosition(it) })
-
-        // TODO autofill stuff
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -38,6 +39,10 @@ fun App(navController: NavHostController = rememberNavController()) {
 
     val notBottomBarScreens = listOf(AppScreen.ScoutingScreen.route, AppScreen.PitScoutingForm.route, AppScreen.CycleTimeForm.route, AppScreen.LoginScreen.route)
 
+    LaunchedEffect(Unit) {
+        scheduleVm.syncWithTba("2025gagr")
+    }
+
     Scaffold(
         bottomBar = {
             if (currentRoute !in notBottomBarScreens) {
@@ -61,7 +66,6 @@ fun App(navController: NavHostController = rememberNavController()) {
                 scouterSchedulevm = scouterScheduleVm,
                 modifier = Modifier.fillMaxSize(),
                 authVm = authVm,
-                contentPadding = innerPadding,
             )
         }
 

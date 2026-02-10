@@ -1,6 +1,5 @@
 package org.waltonrobotics.scoutingApp.appNavigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +13,6 @@ import org.waltonrobotics.scoutingApp.pages.auth.LoginScreen
 import org.waltonrobotics.scoutingApp.pages.matchScouting.ScoutingScreen
 import org.waltonrobotics.scoutingApp.pages.otherScouting.CycleTimeForm
 import org.waltonrobotics.scoutingApp.pages.otherScouting.PitScoutingForm
-import org.waltonrobotics.scoutingApp.pages.pit.PitScreen
 import org.waltonrobotics.scoutingApp.pages.scheduleScreens.ScheduleScreen
 import org.waltonrobotics.scoutingApp.viewmodel.MatchScoutingViewModel
 import org.waltonrobotics.scoutingApp.viewmodel.PitScoutingViewModel
@@ -37,7 +35,6 @@ fun AppNavHost(
     scouterSchedulevm: ScouterViewModel,
     scheduleVm: ScheduleViewModel,
     modifier: Modifier,
-    contentPadding: PaddingValues
 ) {
 
 
@@ -92,14 +89,13 @@ fun AppNavHost(
             ScheduleScreen(
                 snackbarState = snackbarState,
                 viewModel = scheduleVm,
-                contentPadding = contentPadding
             )
         }
 
-        // --- PIT SCOUTING ---
-        composable(AppScreen.Pit.PitScreen.route) {
-            PitScreen()
-        }
+//        // --- PIT SCOUTING ---
+//        composable(AppScreen.Pit.PitScreen.route) {
+//            PitScreen()
+//        }
 
         // --- ACCOUNT ---
         composable(AppScreen.AccountScreen.route) {
@@ -107,8 +103,6 @@ fun AppNavHost(
                 email = authVm.currentUser?.email.toString(),
                 name = scouterSchedulevm.getNameByEmail(email),
                 viewmodel = authVm,
-                scheduleVm,
-                scouterSchedulevm,
                 scouterSchedulevm.isSudo(authVm.currentUser?.email.toString())
             )
         }

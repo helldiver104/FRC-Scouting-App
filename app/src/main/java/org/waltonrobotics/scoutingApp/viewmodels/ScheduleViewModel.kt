@@ -1,8 +1,6 @@
 package org.waltonrobotics.scoutingApp.viewmodels
 
 import android.app.Application
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -12,72 +10,53 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.waltonrobotics.scoutingApp.TBAstuff.RetrofitClient
 import org.waltonrobotics.scoutingApp.schedule.Match
-import java.io.File
 
 class ScheduleViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _matches = MutableStateFlow<List<Match>>(emptyList())
     val matches: StateFlow<List<Match>> = _matches.asStateFlow()
 
-    private val _events = MutableSharedFlow<String>()
+    private val _events = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val events: SharedFlow<String> = _events
 
-    private val file = File(application.filesDir, "schedule_persistent.csv")
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (file.exists()) {
-                _matches.value = parseCsv(file.readText())
-            }
-        }
-    }
-
-    fun importCsv(context: Context, uri: Uri) {
+    fun syncWithTba(eventKey: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val content = context.contentResolver.openInputStream(uri)?.use {
-                    it.bufferedReader().readText()
-                } ?: ""
+                val response = RetrofitClient.tbaApi.getMatches(eventKey.trim().lowercase())
 
-                if (content.isNotBlank()) {
-                    file.writeText(content)
-                    _matches.value = parseCsv(content)
-                    _events.emit("Loaded ${_matches.value.size} matches")
+                val mappedMatches = response
+                    .filter { it.compLevel.equals("qm", ignoreCase = true) }
+                    .map { tba ->
+                        // 1. Process the red alliance list
+                        val redAllianceList = tba.alliances.red.teamKeys?.map { teamKey ->
+                            teamKey.removePrefix("frc")
+                        } ?: emptyList()
+
+                        // 2. Process the blue alliance list
+                        val blueAllianceList = tba.alliances.blue.teamKeys?.map { teamKey ->
+                            teamKey.removePrefix("frc")
+                        } ?: emptyList()
+
+                        // 3. Create your Match object
+                        Match(
+                            matchNumber = tba.matchNumber.toString(),
+                            redAlliance = redAllianceList,  // This is now a List<String>
+                            blueAlliance = blueAllianceList // This is now a List<String>
+                        )
+                    }
+                    .sortedBy { it.matchNumber.toIntOrNull() ?: 0 }
+
+                withContext(Dispatchers.Main) {
+                    _matches.value = mappedMatches
+                    _events.emit("Synced ${mappedMatches.size} matches")
                 }
             } catch (e: Exception) {
-                _events.emit("Failed to load CSV")
+                _events.emit("Sync Error: ${e.localizedMessage}")
             }
-        }
-    }
-
-    private fun parseCsv(content: String): List<Match> {
-        return content.lineSequence()
-            .drop(1) // Skip header
-            .map { it.split(",").map { part -> part.trim() } }
-            // Ensure row has enough columns AND comp_level (index 3) is "qm"
-            .filter { parts ->
-                parts.size >= 12 && parts[3].equals("qm", ignoreCase = true)
-            }
-            .mapNotNull { parts ->
-                Match(
-                    // Index 4: match_number
-                    matchNumber = parts[4],
-
-                    // Red Alliance: red1(6), red2(8), red3(10)
-                    redAlliance = listOf(parts[6], parts[8], parts[10]),
-
-                    // Blue Alliance: blue1(7), blue2(9), blue3(11)
-                    blueAlliance = listOf(parts[7], parts[9], parts[11])
-                )
-            }.toList()
-    }
-
-    fun clearMatches() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (file.exists()) file.delete()
-            _matches.value = emptyList()
-            _events.emit("Schedule cleared")
         }
     }
 }

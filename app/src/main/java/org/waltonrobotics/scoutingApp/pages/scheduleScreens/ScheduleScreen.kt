@@ -1,7 +1,7 @@
 package org.waltonrobotics.scoutingApp.pages.scheduleScreens
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -46,7 +46,10 @@ fun ScheduleNav(
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    NavigationBar(containerColor = Color.Transparent) {
+    NavigationBar(
+        containerColor = Color.Transparent,
+        windowInsets = WindowInsets(0, 0, 0, 0)
+    ) {
         tabs.forEach { tab ->
             NavigationBarItem(selected = currentRoute == tab.route, onClick = {
                 navController.navigate(tab.route) {
@@ -67,7 +70,6 @@ fun ScheduleNav(
 //--------------------------------
 @Composable
 fun ScheduleScreenNavHost(
-    contentPadding: PaddingValues,
     navController: NavHostController, matches: List<Match>
 ) {
     NavHost(
@@ -75,13 +77,11 @@ fun ScheduleScreenNavHost(
     ) {
         composable(AppScreen.Schedule.CompSchedule.route) {
             CompSchedule(
-                contentPadding = contentPadding,
                 matches = matches
             )
         }
         composable(AppScreen.Schedule.OurSchedule.route) {
             OurSchedule(
-                contentPadding = contentPadding,
                 matches = matches
             )
         }
@@ -93,7 +93,6 @@ fun ScheduleScreenNavHost(
 //--------------------------------
 @Composable
 fun ScheduleScreen(
-    contentPadding: PaddingValues,
     viewModel: ScheduleViewModel,
     snackbarState: SnackbarHostState
 ) {
@@ -102,18 +101,24 @@ fun ScheduleScreen(
     val scheduleNavController = rememberNavController()
 
     LaunchedEffect(Unit) {
+        viewModel.syncWithTba("2025gagr")
+    }
+
+    LaunchedEffect(Unit) {
         viewModel.events.collect { message ->
             snackbarState.showSnackbar(message)
         }
     }
+
+
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
 
         ScheduleNav(scheduleNavController)
         ScheduleScreenNavHost(
-            contentPadding = contentPadding,
-            navController = scheduleNavController, matches = matches
+            navController = scheduleNavController,
+            matches = matches
         )
     }
 }
