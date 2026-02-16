@@ -22,4 +22,14 @@ object MatchScoutingRetrofitClient {
             .build()
             .create(MatchScoutingFormSheetsAPI::class.java)
     }
+
+    val waltScheduleAPI: WaltScheduleSheetsAPI by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://script.google.com/macros/s/")
+            .client(scoutingOkHttpClient)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(WaltScheduleSheetsAPI::class.java)
+    }
 }

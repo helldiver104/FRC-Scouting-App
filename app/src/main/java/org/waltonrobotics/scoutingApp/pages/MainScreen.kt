@@ -71,6 +71,8 @@ fun MyNextMatchCard(
     onStartScouting: (String, String) -> Unit,
     onError: (String) -> Unit
 ) {
+
+
     val isNotScouting = myPosition == AlliancePosition.NONE
     val isStaff = myPosition.isStrat
     val matchData = matches.find { it.matchNumber == currentMatch.toString() }
@@ -80,6 +82,8 @@ fun MyNextMatchCard(
         val index = myPosition.label.lastOrNull()?.digitToIntOrNull()?.minus(1) ?: -1
         alliance?.getOrNull(index)
     }
+
+
 
     val contentColor = if (isNotScouting) Color.White else Color.Black
     val containerColor = when {
